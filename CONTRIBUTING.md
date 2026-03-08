@@ -1023,14 +1023,6 @@ Action occurs (e.g., new submission)
 
 ## 13. Screenshots
 
-> **📸 Screenshots will be added here.**
-> Add your screenshots in this section using the following format:
->
-> ```markdown
-> ### Page Name
-> ![Description of the screen](./screenshots/page-name.png)
-> ```
-
 ### Login Page
 *<!-- Add screenshot here -->*
 <img width="1920" height="911" alt="screencapture-liportal-vercel-app-en-login-2026-03-08-21_04_27" src="https://github.com/user-attachments/assets/d8829fe3-813c-4453-9655-b680b1d71493" />
