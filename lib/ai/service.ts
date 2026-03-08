@@ -2,18 +2,21 @@ import { GoogleGenerativeAI } from '@google/generative-ai'
 import Groq from 'groq-sdk'
 
 export type AIModel = 'gemini' | 'groq' | 'glm'
-export type AICategory =
-  | "Automation" | "Website" | "AI Integration" | "SEO" | "Custom Software" | "Mobile App" | "API Development" | "UI/UX Design" | "DevOps & CI/CD" | "Cloud Infrastructure" | "Cybersecurity" | "Blockchain & Web3"
-  | "Logo & Branding" | "Graphic Design" | "Video Production" | "Photography" | "Motion Graphics" | "Illustration" | "Presentation Design"
-  | "Social Media Marketing" | "Paid Ads / PPC" | "Email Marketing" | "Influencer Marketing" | "Content Marketing" | "Affiliate Marketing"
-  | "Copywriting" | "Blog Writing" | "Translation" | "Proofreading & Editing" | "Technical Writing" | "Scriptwriting"
-  | "Business Consulting" | "Financial Planning" | "Accounting & Bookkeeping" | "Tax Advisory" | "Market Research" | "Business Plan Writing" | "Fundraising & Pitch Decks"
-  | "Contract Drafting" | "Legal Consulting" | "Trademark & IP" | "Compliance Advisory"
-  | "Online Tutoring" | "Corporate Training" | "Course Creation" | "Language Teaching" | "Career Coaching"
-  | "Nutrition & Dietetics" | "Mental Health Coaching" | "Personal Training" | "Medical Consulting"
-  | "Property Management" | "Real Estate Consulting" | "Interior Design" | "Architecture"
-  | "Cleaning" | "Repairs & Maintenance" | "Landscaping" | "Moving & Logistics" | "Event Planning" | "Catering"
-  | "Other";
+export const AI_CATEGORIES = [
+  "Automation", "Website", "AI Integration", "SEO", "Custom Software", "Mobile App", "API Development", "UI/UX Design", "DevOps & CI/CD", "Cloud Infrastructure", "Cybersecurity", "Blockchain & Web3",
+  "Logo & Branding", "Graphic Design", "Video Production", "Photography", "Motion Graphics", "Illustration", "Presentation Design",
+  "Social Media Marketing", "Paid Ads / PPC", "Email Marketing", "Influencer Marketing", "Content Marketing", "Affiliate Marketing",
+  "Copywriting", "Blog Writing", "Translation", "Proofreading & Editing", "Technical Writing", "Scriptwriting",
+  "Business Consulting", "Financial Planning", "Accounting & Bookkeeping", "Tax Advisory", "Market Research", "Business Plan Writing", "Fundraising & Pitch Decks",
+  "Contract Drafting", "Legal Consulting", "Trademark & IP", "Compliance Advisory",
+  "Online Tutoring", "Corporate Training", "Course Creation", "Language Teaching", "Career Coaching",
+  "Nutrition & Dietetics", "Mental Health Coaching", "Personal Training", "Medical Consulting",
+  "Property Management", "Real Estate Consulting", "Interior Design", "Architecture",
+  "Cleaning", "Repairs & Maintenance", "Landscaping", "Moving & Logistics", "Event Planning", "Catering",
+  "Other"
+] as const;
+
+export type AICategory = typeof AI_CATEGORIES[number];
 
 export interface AIResult {
   summary: string
@@ -23,19 +26,19 @@ export interface AIResult {
   raw_response: unknown
 }
 
-const SYSTEM_PROMPT = `You are a business intake classifier. Your goal is to accurately categorize client requests into the most specific category possible.
+const SYSTEM_PROMPT = `You are a business intake classifier.Your goal is to accurately categorize client requests into the most specific category possible.
  
 Return a JSON object with exactly three fields:
-- "summary": a single sentence summarizing the request professionally (max 150 chars)
-- "category": one of exactly the categories listed below.
+- "summary": a single sentence summarizing the request professionally(max 150 chars)
+  - "category": one of exactly the categories listed below.
 - "confidence": a number between 0 and 1 indicating your confidence.
  
-**CRITICAL INSTRUCTIONS**:
+** CRITICAL INSTRUCTIONS **:
 1. DO NOT default to "Other" if a more specific category fits even partially.
-2. Analyze the context carefully. For example, "I need a site for my bakery" should be "Website", while "I need to rank higher on Google" should be "SEO".
+2. Analyze the context carefully.For example, "I need a site for my bakery" should be "Website", while "I need to rank higher on Google" should be "SEO".
 3. If multiple categories apply, choose the one that represents the primary intent.
  
-**VALID CATEGORIES**:
+** VALID CATEGORIES **:
 [
   "Automation", "Website", "AI Integration", "SEO", "Custom Software", "Mobile App", "API Development", "UI/UX Design", "DevOps & CI/CD", "Cloud Infrastructure", "Cybersecurity", "Blockchain & Web3",
   "Logo & Branding", "Graphic Design", "Video Production", "Photography", "Motion Graphics", "Illustration", "Presentation Design",
@@ -57,22 +60,10 @@ function buildPrompt(helpRequest: string): string {
 }
 
 function parseAIResponse(text: string): { summary: string; category: AICategory; confidence: number } {
-  const cleaned = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim()
+  const cleaned = text.replace(/```json\n ? /g, '').replace(/```\n?/g, '').trim()
   const parsed = JSON.parse(cleaned)
 
-  const validCategories: AICategory[] = [
-    "Automation", "Website", "AI Integration", "SEO", "Custom Software", "Mobile App", "API Development", "UI/UX Design", "DevOps & CI/CD", "Cloud Infrastructure", "Cybersecurity", "Blockchain & Web3",
-    "Logo & Branding", "Graphic Design", "Video Production", "Photography", "Motion Graphics", "Illustration", "Presentation Design",
-    "Social Media Marketing", "Paid Ads / PPC", "Email Marketing", "Influencer Marketing", "Content Marketing", "Affiliate Marketing",
-    "Copywriting", "Blog Writing", "Translation", "Proofreading & Editing", "Technical Writing", "Scriptwriting",
-    "Business Consulting", "Financial Planning", "Accounting & Bookkeeping", "Tax Advisory", "Market Research", "Business Plan Writing", "Fundraising & Pitch Decks",
-    "Contract Drafting", "Legal Consulting", "Trademark & IP", "Compliance Advisory",
-    "Online Tutoring", "Corporate Training", "Course Creation", "Language Teaching", "Career Coaching",
-    "Nutrition & Dietetics", "Mental Health Coaching", "Personal Training", "Medical Consulting",
-    "Property Management", "Real Estate Consulting", "Interior Design", "Architecture",
-    "Cleaning", "Repairs & Maintenance", "Landscaping", "Moving & Logistics", "Event Planning", "Catering",
-    "Other"
-  ]
+  const validCategories = AI_CATEGORIES;
   const category = validCategories.includes(parsed.category as AICategory) ? (parsed.category as AICategory) : "Other"
   const confidence = typeof parsed.confidence === 'number'
     ? Math.min(1, Math.max(0, parsed.confidence))
@@ -87,7 +78,7 @@ function parseAIResponse(text: string): { summary: string; category: AICategory;
 
 async function classifyWithGemini(helpRequest: string): Promise<AIResult> {
   const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!)
-  const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash-latest' })
+  const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
 
   const result = await model.generateContent([
     { text: SYSTEM_PROMPT },
@@ -101,7 +92,7 @@ async function classifyWithGemini(helpRequest: string): Promise<AIResult> {
     summary: parsed.summary,
     category: parsed.category,
     confidence_score: parsed.confidence,
-    model_used: 'gemini-1.5-flash-latest',
+    model_used: 'gemini-1.5-flash',
     raw_response: result.response,
   }
 }
@@ -137,7 +128,7 @@ async function classifyWithGLM(helpRequest: string): Promise<AIResult> {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${process.env.GLM_API_KEY!}`,
+      Authorization: `Bearer ${process.env.GLM_API_KEY!} `,
     },
     body: JSON.stringify({
       model: 'glm-4-flash',
@@ -151,7 +142,7 @@ async function classifyWithGLM(helpRequest: string): Promise<AIResult> {
   })
 
   if (!response.ok) {
-    throw new Error(`GLM API error: ${response.status} ${response.statusText}`)
+    throw new Error(`GLM API error: ${response.status} ${response.statusText} `)
   }
 
   const data = await response.json()
@@ -194,7 +185,7 @@ export async function classifySubmission(
       }
     } catch (error) {
       lastError = error as Error
-      console.error(`AI model ${model} failed:`, error)
+      console.error(`AI model ${model} failed: `, error)
     }
   }
 
@@ -216,17 +207,17 @@ export async function generateStatusChangeNote(
 
   const prompt = `
     Submission Details:
-    - Customer: ${submission.name}
-    - Business: ${submission.business_name}
-    - Request: ${submission.help_request}
-    - AI Summary: ${submission.ai_summary || 'N/A'}
+- Customer: ${submission.name}
+- Business: ${submission.business_name}
+- Request: ${submission.help_request}
+- AI Summary: ${submission.ai_summary || 'N/A'}
 
     Status Transition: From "${oldStatus}" to "${newStatus}"
 
-    Task: Write a very brief, professional internal note (max 1 sentence) explaining this status update in the context of the lead's needs. 
-    Examples: 
-    - "Moving to In Progress as we begin analyzing the automation requirements for Acme Corp."
-    - "Marking as Reviewed after initial AI categorization of the SEO project."
+Task: Write a very brief, professional internal note(max 1 sentence) explaining this status update in the context of the lead's needs. 
+Examples:
+- "Moving to In Progress as we begin analyzing the automation requirements for Acme Corp."
+  - "Marking as Reviewed after initial AI categorization of the SEO project."
     
     Return only the note text.
   `

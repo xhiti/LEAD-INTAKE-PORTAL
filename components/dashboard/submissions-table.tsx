@@ -25,6 +25,7 @@ import { deleteSubmissionAction, updateSubmissionAction, getSubmissionsForExport
 import { Sparkles, Loader2 as LoaderIcon } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { exportToCSV } from '@/lib/export-utils'
+import { AI_CATEGORIES } from '@/lib/ai/service'
 
 type Submission = Database['public']['Tables']['submissions']['Row']
 
@@ -39,7 +40,7 @@ interface Props {
 
 const STATUSES = ['new', 'reviewed', 'in_progress', 'closed', 'archived'] as const
 const PRIORITIES = ['low', 'medium', 'high', 'urgent'] as const
-const CATEGORIES = ['Automation', 'Website', 'AI Integration', 'SEO', 'Custom Software', 'Other'] as const
+const CATEGORIES = AI_CATEGORIES
 
 export function SubmissionsTable({ submissions: initial, isAdmin, locale, userId, isMySubmissions, industries }: Props) {
   const t = useTranslations('submissions')
