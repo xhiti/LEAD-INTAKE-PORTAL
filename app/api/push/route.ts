@@ -1,14 +1,39 @@
 import { NextResponse } from 'next/server'
 import webpush from 'web-push'
 
-webpush.setVapidDetails(
-  process.env.VAPID_EMAIL!,
-  process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!,
-  process.env.VAPID_PRIVATE_KEY!
-)
+let isInitialized = false
+
+function initWebPush() {
+  if (isInitialized) return true
+
+  const email = process.env.VAPID_EMAIL
+  const publicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY
+  const privateKey = process.env.VAPID_PRIVATE_KEY
+
+  if (!email || !publicKey || !privateKey) {
+    console.warn('VAPID keys are missing. Push notifications are disabled.')
+    return false
+  }
+
+  try {
+    webpush.setVapidDetails(email, publicKey, privateKey)
+    isInitialized = true
+    return true
+  } catch (error) {
+    console.error('Failed to set VAPID details:', error)
+    return false
+  }
+}
 
 export async function POST(request: Request) {
   try {
+    if (!initWebPush()) {
+      return NextResponse.json(
+        { error: 'Push notification service is not configured' },
+        { status: 503 }
+      )
+    }
+
     const { subscription, title, body, url } = await request.json()
 
     if (!subscription || !title) {
