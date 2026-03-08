@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="https://img.shields.io/badge/Next.js-14.2-black?style=for-the-badge&logo=next.js" alt="Next.js" />
+  <img src="https://img.shields.io/badge/Next.js-14.2.18-black?style=for-the-badge&logo=next.js" alt="Next.js" />
   <img src="https://img.shields.io/badge/Supabase-PostgreSQL-3ECF8E?style=for-the-badge&logo=supabase" alt="Supabase" />
-  <img src="https://img.shields.io/badge/TypeScript-5.6-3178C6?style=for-the-badge&logo=typescript" alt="TypeScript" />
-  <img src="https://img.shields.io/badge/Tailwind_CSS-3.4-38B2AC?style=for-the-badge&logo=tailwind-css" alt="Tailwind" />
+  <img src="https://img.shields.io/badge/TypeScript-5.6.3-3178C6?style=for-the-badge&logo=typescript" alt="TypeScript" />
+  <img src="https://img.shields.io/badge/Tailwind_CSS-3.4.15-38B2AC?style=for-the-badge&logo=tailwind-css" alt="Tailwind" />
   <img src="https://img.shields.io/badge/Vercel-Deployed-000000?style=for-the-badge&logo=vercel" alt="Vercel" />
 </p>
 
@@ -111,24 +111,24 @@
 
 | Layer | Technology | Purpose |
 |-------|-----------|---------|
-| **Framework** | Next.js 14.2 (App Router) | Server/client components, API routes, middleware |
-| **Language** | TypeScript 5.6 | Type safety across the entire codebase |
+| **Framework** | Next.js 14.2.18 (App Router) | Server/client components, API routes, middleware |
+| **Language** | TypeScript 5.6.3 | Type safety across the entire codebase |
 | **Database** | Supabase (PostgreSQL) | Relational data, RLS, realtime subscriptions |
 | **Auth** | Supabase Auth | Email/password, Google OAuth, session management |
 | **Storage** | Supabase Storage | Avatar uploads (public `avatars` bucket) |
-| **AI — Primary** | Google Gemini 1.5 Flash | Lead classification + assistant chat |
-| **AI — Fallback 1** | Groq (LLaMA 3.1 8B) | Fallback classifier + status notes generation |
+| **AI — Primary** | Google Gemini 1.5 Flash (@google/generative-ai 0.21.0) | Lead classification + assistant chat |
+| **AI — Fallback 1** | Groq (LLaMA 3.1 8B) (groq-sdk 0.8.0) | Fallback classifier + status notes generation |
 | **AI — Fallback 2** | GLM-4 Flash (Zhipu AI) | Secondary fallback via REST API |
-| **Styling** | Tailwind CSS 3.4 | Utility-first responsive design |
+| **Styling** | Tailwind CSS 3.4.15 | Utility-first responsive design |
 | **UI Components** | Radix UI (shadcn/ui) | Accessible, composable primitives |
-| **Forms** | react-hook-form + Zod | Schema-validated form handling |
-| **Charts** | Recharts 2.13 | Interactive data visualization |
-| **Drag & Drop** | dnd-kit | Kanban board interactions |
-| **Animations** | Framer Motion 12 | Page transitions, micro-animations |
-| **Email** | Resend | Transactional email delivery |
-| **Push** | Web Push + Service Worker | Browser push notifications |
-| **i18n** | next-intl 3.22 | Locale-based routing & translation |
-| **Theme** | next-themes | Dark/light/system mode |
+| **Forms** | react-hook-form 7.53 + Zod 3.23 | Schema-validated form handling |
+| **Charts** | Recharts 2.13.3 | Interactive data visualization |
+| **Drag & Drop** | dnd-kit 6.3 | Kanban board interactions |
+| **Animations** | Framer Motion 12.35 | Page transitions, micro-animations |
+| **Email** | Resend 6.9.3 | Transactional email delivery |
+| **Push** | Web Push 3.6.7 + Service Worker | Browser push notifications |
+| **i18n** | next-intl 3.22.0 | Locale-based routing & translation |
+| **Theme** | next-themes 0.4.3 | Dark/light/system mode |
 | **Hosting** | Vercel | Edge deployment, serverless functions |
 
 ---
