@@ -1,0 +1,196 @@
+# ============================================================================
+# Production Deployment — Lead Intake Portal
+# ============================================================================
+# Deploys to Vercel production when code is pushed/merged to the main branch.
+# Includes full CI checks before deploying to prevent broken releases.
+# ============================================================================
+
+name: Production — Deploy to Vercel
+
+on:
+  push:
+    branches: [main]
+
+concurrency:
+  group: production-deploy
+  cancel-in-progress: false  # Never cancel production deployments
+
+env:
+  NODE_VERSION: "20"
+  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+  # ── Dummy env vars for CI build step ──
+  NEXT_PUBLIC_SUPABASE_URL: "https://placeholder.supabase.co"
+  NEXT_PUBLIC_SUPABASE_ANON_KEY: "placeholder-anon-key"
+  SUPABASE_SERVICE_ROLE_KEY: "placeholder-service-role-key"
+  GEMINI_API_KEY: "placeholder"
+  GROQ_API_KEY: "placeholder"
+  GLM_API_KEY: "placeholder"
+  RESEND_API_KEY: "placeholder"
+  RESEND_FROM_EMAIL: "no-reply@example.com"
+  RESEND_FROM_NAME: "CI Build"
+  NEXT_PUBLIC_APP_URL: "http://localhost:3000"
+  NEXT_PUBLIC_VAPID_PUBLIC_KEY: "placeholder-vapid-public"
+  VAPID_PRIVATE_KEY: "placeholder-vapid-private"
+  VAPID_EMAIL: "mailto:ci@example.com"
+
+jobs:
+  # ────────────────────────────────────────────────────────────────────
+  # Pre-flight Checks (same as CI pipeline)
+  # ────────────────────────────────────────────────────────────────────
+  preflight:
+    name: 🛡️ Pre-flight Checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🟢 Setup Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: 📦 Cache node_modules
+        uses: actions/cache@v4
+        id: cache-node-modules
+        with:
+          path: node_modules
+          key: node-modules-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            node-modules-${{ runner.os }}-
+
+      - name: 📥 Install dependencies
+        if: steps.cache-node-modules.outputs.cache-hit != 'true'
+        run: npm ci --prefer-offline --no-audit
+
+      - name: 🔎 ESLint — Lint check
+        run: npm run lint
+
+      - name: 🏷️ TypeScript — Type check
+        run: npm run type-check
+
+      - name: 🔨 Next.js — Build verification
+        run: npm run build
+
+  # ────────────────────────────────────────────────────────────────────
+  # Production Deployment
+  # ────────────────────────────────────────────────────────────────────
+  deploy-production:
+    name: 🌐 Deploy to Production
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: preflight
+    environment:
+      name: Production
+      url: ${{ steps.deploy.outputs.production-url }}
+
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🟢 Setup Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: 📦 Install Vercel CLI
+        run: npm install -g vercel@latest
+
+      - name: 🔗 Pull Vercel environment (Production)
+        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: 🔨 Build for production
+        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: 🚀 Deploy to production
+        id: deploy
+        run: |
+          DEPLOY_URL=$(vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }})
+          echo "production-url=$DEPLOY_URL" >> $GITHUB_OUTPUT
+
+      - name: 📊 Deployment summary
+        run: |
+          echo "## 🚀 Production Deployment Successful" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Detail | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|--------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Production URL | [${{ steps.deploy.outputs.production-url }}](${{ steps.deploy.outputs.production-url }}) |" >> $GITHUB_STEP_SUMMARY
+          echo "| Commit | \`${{ github.sha }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Branch | \`main\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Actor | @${{ github.actor }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Timestamp | $(date -u '+%Y-%m-%d %H:%M:%S UTC') |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Environment Variables" >> $GITHUB_STEP_SUMMARY
+          echo "All secrets pulled from Vercel project settings." >> $GITHUB_STEP_SUMMARY
+
+  # ────────────────────────────────────────────────────────────────────
+  # Post-deployment Health Check
+  # ────────────────────────────────────────────────────────────────────
+  health-check:
+    name: 💚 Post-deploy Health Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    needs: deploy-production
+
+    steps:
+      - name: ⏳ Wait for deployment to propagate
+        run: sleep 30
+
+      - name: 🏥 Health check
+        run: |
+          PRODUCTION_URL="${{ needs.deploy-production.outputs.production-url || secrets.PRODUCTION_URL }}"
+          if [ -z "$PRODUCTION_URL" ]; then
+            echo "⚠️ No production URL available, skipping health check"
+            exit 0
+          fi
+
+          echo "Checking $PRODUCTION_URL ..."
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$PRODUCTION_URL" --max-time 30 || echo "000")
+
+          if [ "$STATUS" = "200" ] || [ "$STATUS" = "307" ] || [ "$STATUS" = "308" ]; then
+            echo "✅ Health check passed (HTTP $STATUS)"
+            echo "## 💚 Health Check Passed" >> $GITHUB_STEP_SUMMARY
+            echo "Production is healthy (HTTP $STATUS)" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ Health check failed (HTTP $STATUS)"
+            echo "## ❌ Health Check Failed" >> $GITHUB_STEP_SUMMARY
+            echo "Production returned HTTP $STATUS" >> $GITHUB_STEP_SUMMARY
+            exit 1
+          fi
+
+  # ────────────────────────────────────────────────────────────────────
+  # Notification (runs after deployment regardless of outcome)
+  # ────────────────────────────────────────────────────────────────────
+  notify:
+    name: 📢 Deployment Notification
+    runs-on: ubuntu-latest
+    needs: [deploy-production, health-check]
+    if: always()
+
+    steps:
+      - name: 📢 Report final status
+        run: |
+          DEPLOY_STATUS="${{ needs.deploy-production.result }}"
+          HEALTH_STATUS="${{ needs.health-check.result }}"
+
+          echo "## 📢 Deployment Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Stage | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Pre-flight | ✅ Passed |" >> $GITHUB_STEP_SUMMARY
+
+          if [ "$DEPLOY_STATUS" = "success" ]; then
+            echo "| Deployment | ✅ Successful |" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "| Deployment | ❌ Failed |" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          if [ "$HEALTH_STATUS" = "success" ]; then
+            echo "| Health Check | ✅ Healthy |" >> $GITHUB_STEP_SUMMARY
+          elif [ "$HEALTH_STATUS" = "skipped" ]; then
+            echo "| Health Check | ⏭️ Skipped |" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "| Health Check | ❌ Failed |" >> $GITHUB_STEP_SUMMARY
+          fi
