@@ -41,7 +41,6 @@ export async function POST(request: Request) {
     const data = parsed.data
     const { ip, userAgent } = extractRequestInfo(request)
 
-    // AI classification with fallback to pre-fetched UI data
     let aiResult;
     if (data.ai_prefetched && data.ai_prefetched.summary) {
       aiResult = {
@@ -57,7 +56,6 @@ export async function POST(request: Request) {
 
     const supabase = getServiceClient()
 
-    // Insert submission
     const { data: submission, error: insertError } = await supabase
       .from('submissions')
       .insert({
@@ -83,7 +81,6 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Failed to save submission' }, { status: 500 })
     }
 
-    // Notify all admins about new submission
     const { data: admins } = await supabase
       .from('profiles')
       .select('id')
@@ -109,7 +106,6 @@ export async function POST(request: Request) {
 
       await supabase.from('notifications').insert(notifications)
 
-      // Trigger web push for admins who have it enabled
       const { data: pushPrefs } = await supabase
         .from('notification_preferences')
         .select('user_id, push_subscription, push_new_submission')
@@ -135,7 +131,6 @@ export async function POST(request: Request) {
       }
     }
 
-    // Audit log
     await logAudit({
       action: 'submission.create',
       entityType: 'submission',

@@ -28,7 +28,6 @@ export function AccountDangerZone({ userId }: Props) {
     const [isDeleting, setIsDeleting] = useState(false)
     const [isDeactivating, setIsDeactivating] = useState(false)
 
-    // Dialog States
     const [showDeactivateDialog, setShowDeactivateDialog] = useState(false)
     const [showDeleteDialog, setShowDeleteDialog] = useState(false)
     const [deleteConfirmText, setDeleteConfirmText] = useState('')
@@ -69,7 +68,6 @@ export function AccountDangerZone({ userId }: Props) {
 
     return (
         <div className="rounded-xl border border-destructive/30 bg-card overflow-hidden divide-y divide-destructive/15">
-            {/* Deactivate Section */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-5 py-4">
                 <div className="flex items-start gap-3 min-w-0">
                     <div className="shrink-0 h-9 w-9 rounded-lg bg-muted flex items-center justify-center mt-0.5">
@@ -91,7 +89,6 @@ export function AccountDangerZone({ userId }: Props) {
                 </Button>
             </div>
 
-            {/* Delete Section */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-5 py-4">
                 <div className="flex items-start gap-3 min-w-0">
                     <div className="shrink-0 h-9 w-9 rounded-lg bg-destructive/10 flex items-center justify-center mt-0.5">
@@ -116,7 +113,6 @@ export function AccountDangerZone({ userId }: Props) {
                 </Button>
             </div>
 
-            {/* Deactivation Confirm Dialog */}
             <ConfirmDialog
                 open={showDeactivateDialog}
                 onOpenChange={setShowDeactivateDialog}
@@ -130,7 +126,6 @@ export function AccountDangerZone({ userId }: Props) {
                 icon={<Ghost className="h-6 w-6" />}
             />
 
-            {/* Standardized Delete Dialog with Input Confirmation */}
             <ConfirmDialog
                 open={showDeleteDialog}
                 onOpenChange={setShowDeleteDialog}

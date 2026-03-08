@@ -137,11 +137,8 @@ export function ProfileForm({ profile }: { profile: Profile }) {
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-6">
-        {/* ── Left sidebar: avatar + info card ── */}
         <div className="space-y-4">
-          {/* Profile Card */}
           <Card className="overflow-hidden border-border/50 bg-card/50 backdrop-blur-sm shadow-sm">
-            {/* Cover gradient */}
             <div className="h-28 bg-gradient-to-br from-primary/30 via-primary/10 to-background relative">
               <div className="absolute inset-0 opacity-20"
                 style={{ backgroundImage: 'radial-gradient(circle at 70% 50%, hsl(var(--primary)) 0%, transparent 60%)' }}
@@ -149,7 +146,6 @@ export function ProfileForm({ profile }: { profile: Profile }) {
             </div>
 
             <CardContent className="px-6 pb-6 -mt-10">
-              {/* Avatar */}
               <div className="relative mb-4 w-fit">
                 <Avatar className="h-20 w-20 border-4 border-background shadow-md ring-1 ring-border/50">
                   <AvatarImage src={avatarUrl} alt={profile.full_name ?? ''} className="object-cover" />
@@ -174,7 +170,6 @@ export function ProfileForm({ profile }: { profile: Profile }) {
                 />
               </div>
 
-              {/* Name + role */}
               <h2 className="text-xl font-bold tracking-tight">{profile.full_name}</h2>
               <p className="text-sm text-muted-foreground mb-3">{watch('job_title') || profile.job_title || 'No title set'}</p>
 
@@ -185,7 +180,6 @@ export function ProfileForm({ profile }: { profile: Profile }) {
             </CardContent>
           </Card>
 
-          {/* Info tags */}
           <Card className="border-border/50 bg-card/50 backdrop-blur-sm shadow-sm">
             <CardHeader className="pb-3 pt-4 px-5">
               <CardTitle className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Account Info</CardTitle>
@@ -203,7 +197,6 @@ export function ProfileForm({ profile }: { profile: Profile }) {
             </CardContent>
           </Card>
 
-          {/* Status */}
           <Card className="border-border/50 bg-card/50 backdrop-blur-sm shadow-sm">
             <CardContent className="px-5 py-4 flex items-center justify-between">
               <div className="flex items-center gap-2">
@@ -217,9 +210,7 @@ export function ProfileForm({ profile }: { profile: Profile }) {
           </Card>
         </div>
 
-        {/* ── Right: form panels ── */}
         <div className="space-y-4">
-          {/* Personal Information */}
           <FormSection
             icon={<User className="h-4 w-4" />}
             title="Personal Information"
@@ -263,7 +254,6 @@ export function ProfileForm({ profile }: { profile: Profile }) {
             </div>
           </FormSection>
 
-          {/* About / Bio */}
           <FormSection
             icon={<Edit3 className="h-4 w-4" />}
             title="About"
@@ -284,7 +274,6 @@ export function ProfileForm({ profile }: { profile: Profile }) {
             </Field>
           </FormSection>
 
-          {/* Professional */}
           <FormSection
             icon={<Briefcase className="h-4 w-4" />}
             title="Professional"
@@ -313,7 +302,6 @@ export function ProfileForm({ profile }: { profile: Profile }) {
             </Field>
           </FormSection>
 
-          {/* Save */}
           <div className="flex justify-end pt-1">
             <Button
               type="submit"
@@ -335,7 +323,6 @@ export function ProfileForm({ profile }: { profile: Profile }) {
   )
 }
 
-/* ── helpers ── */
 
 function FormSection({
   icon,

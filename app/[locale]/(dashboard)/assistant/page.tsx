@@ -18,10 +18,10 @@ export default async function AssistantPage({ params }: { params: { locale: stri
 
     const isAdmin = profile?.role === 'admin' || profile?.role === 'moderator'
 
-    // Fetch submissions for context
     const query = supabase
         .from('submissions')
         .select('id, name, business_name, email, status, industry, ai_category, ai_summary, help_request, created_at')
+        .eq('is_active', true)
         .eq('is_deleted', false)
         .order('created_at', { ascending: false })
 
@@ -32,7 +32,6 @@ export default async function AssistantPage({ params }: { params: { locale: stri
     const subs = submissions ?? []
     const userName = profile?.name ?? 'User'
 
-    // Compute stats
     const stats = {
         total: subs.length,
         new: subs.filter(s => s.status === 'new').length,

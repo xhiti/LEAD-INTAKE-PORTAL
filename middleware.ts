@@ -17,7 +17,6 @@ const authRoutes = ['/login', '/register', '/forgot-password', '/reset-password'
 export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname
 
-  // Extract locale from path
   const pathnameLocale = locales.find(
     locale => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`
   )
@@ -25,7 +24,6 @@ export async function middleware(request: NextRequest) {
     ? pathname.slice(`/${pathnameLocale}`.length) || '/'
     : pathname
 
-  // Check if route requires protection
   const isProtectedRoute = protectedRoutes.some(route =>
     pathWithoutLocale.startsWith(route)
   )
@@ -33,10 +31,8 @@ export async function middleware(request: NextRequest) {
     pathWithoutLocale.startsWith(route)
   )
 
-  // 1. Apply intl middleware for locale routing
   const intlResponse = intlMiddleware(request)
 
-  // 2. Refresh Supabase session using the intl response
   const { supabaseResponse, user } = await updateSession(request, intlResponse)
 
   if (isProtectedRoute && !user) {
@@ -44,7 +40,6 @@ export async function middleware(request: NextRequest) {
     const loginUrl = new URL(`/${locale}/login`, request.url)
     loginUrl.searchParams.set('redirect', pathname)
 
-    // Create redirect response but MUST use the refreshed cookies
     const redirectResponse = NextResponse.redirect(loginUrl)
     supabaseResponse.cookies.getAll().forEach((cookie) => {
       redirectResponse.cookies.set(cookie.name, cookie.value, cookie)
@@ -52,15 +47,12 @@ export async function middleware(request: NextRequest) {
     return redirectResponse
   }
 
-  // Break potential loops: if user is logged in but redirected to login with an error,
-  // allow them to see the login page (likely due to missing profile or other issue)
   const hasErrorParam = request.nextUrl.searchParams.has('error') || request.nextUrl.searchParams.has('message')
 
   if (isAuthRoute && user && !hasErrorParam) {
     const locale = pathnameLocale || defaultLocale
     const dashboardUrl = new URL(`/${locale}/dashboard`, request.url)
 
-    // Create redirect response but MUST use the refreshed cookies
     const redirectResponse = NextResponse.redirect(dashboardUrl)
     supabaseResponse.cookies.getAll().forEach((cookie) => {
       redirectResponse.cookies.set(cookie.name, cookie.value, cookie)

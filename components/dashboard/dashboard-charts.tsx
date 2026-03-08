@@ -29,7 +29,6 @@ export function DashboardCharts({ byCategory, byIndustry, byStatus }: Props) {
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-      {/* By Category */}
       <Card>
         <CardHeader>
           <CardTitle className="text-sm font-medium">Submissions by AI Category</CardTitle>
@@ -50,7 +49,6 @@ export function DashboardCharts({ byCategory, byIndustry, byStatus }: Props) {
         </CardContent>
       </Card>
 
-      {/* By Industry */}
       <Card>
         <CardHeader>
           <CardTitle className="text-sm font-medium">Submissions by Industry</CardTitle>

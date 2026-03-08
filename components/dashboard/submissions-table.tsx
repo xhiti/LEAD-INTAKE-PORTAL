@@ -75,7 +75,6 @@ export function SubmissionsTable({
   const [isExporting, setIsExporting] = useState(false)
   const [isSyncing, setIsSyncing] = useState(false)
 
-  // Sync state with URL on initial load and when URL changes
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
     setSearchName(params.get('searchName') || '')
@@ -93,7 +92,6 @@ export function SubmissionsTable({
     if (td) setToDate(new Date(td))
   }, [])
 
-  // Update URL when filters or page changes
   const updateUrl = (newParams: Record<string, string | number | undefined | null>, shouldReplace = false) => {
     const params = new URLSearchParams(window.location.search)
     Object.entries(newParams).forEach(([key, value]) => {
@@ -116,7 +114,6 @@ export function SubmissionsTable({
     }
   }
 
-  // Debounced search updates
   useEffect(() => {
     const timer = setTimeout(() => {
       const params = new URLSearchParams(window.location.search)

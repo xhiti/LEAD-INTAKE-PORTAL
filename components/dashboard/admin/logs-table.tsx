@@ -112,7 +112,7 @@ export function LogsTable({ initialLogs, totalCount, currentPage, initialFilters
         startTransition(() => {
             router.push(`${pathname}?${buildQuery(filters, 1)}`)
         })
-    }, [debouncedSearch, debouncedUserSearch, debouncedIpSearch]) // eslint-disable-line react-hooks/exhaustive-deps
+    }, [debouncedSearch, debouncedUserSearch, debouncedIpSearch])
 
     const handleFromDate = (d: Date | undefined) => {
         setFromDate(d)

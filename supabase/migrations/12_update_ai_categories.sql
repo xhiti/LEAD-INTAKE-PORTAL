@@ -1,4 +1,3 @@
--- Update the ai_category check constraint with the new expanded list
 ALTER TABLE submissions DROP CONSTRAINT IF EXISTS submissions_ai_category_check;
 
 ALTER TABLE submissions ADD CONSTRAINT submissions_ai_category_check CHECK (ai_category IN (

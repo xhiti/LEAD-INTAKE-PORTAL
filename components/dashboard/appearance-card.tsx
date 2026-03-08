@@ -39,7 +39,6 @@ export function AppearanceCard() {
 
   return (
     <div className="rounded-xl border border-border bg-card overflow-hidden">
-      {/* Theme row */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-5 py-4">
         <div className="flex items-center gap-3 min-w-0">
           <div className="shrink-0 h-9 w-9 rounded-lg bg-muted flex items-center justify-center">
@@ -71,7 +70,6 @@ export function AppearanceCard() {
 
       <div className="border-t border-border" />
 
-      {/* Language row */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-5 py-4">
         <div className="flex items-center gap-3 min-w-0">
           <div className="shrink-0 h-9 w-9 rounded-lg bg-muted flex items-center justify-center">

@@ -126,7 +126,6 @@ export function NotificationPrefs({ prefs: initialPrefs, userId }: Props) {
   return (
     <div className="rounded-xl border border-border bg-card overflow-hidden divide-y divide-border">
 
-      {/* In-App section */}
       <GroupHeader icon={Bell} label="In-App" description="Notifications inside the dashboard" />
 
       {IN_APP_PREFS.map(({ key, label, description }) => (
@@ -172,7 +171,6 @@ export function NotificationPrefs({ prefs: initialPrefs, userId }: Props) {
         />
       ))}
 
-      {/* Email section */}
       <GroupHeader icon={Mail} label="Email" description="Email notification preferences" />
 
       {EMAIL_PREFS.map(({ key, label, description }) => (
@@ -186,7 +184,6 @@ export function NotificationPrefs({ prefs: initialPrefs, userId }: Props) {
         />
       ))}
 
-      {/* Do Not Disturb */}
       <GroupHeader icon={BellOff} label="Do Not Disturb" description="Silence all notifications" />
 
       <ToggleRow

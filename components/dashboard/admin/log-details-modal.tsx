@@ -39,7 +39,6 @@ export function LogDetailsModal({ log, open, onOpenChange }: LogDetailsModalProp
 
                 <ScrollArea className="flex-1 p-6">
                     <div className="space-y-6">
-                        {/* Context Info */}
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pb-6 border-b border-border/40">
                             <div>
                                 <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider mb-1">Entity</p>
@@ -63,7 +62,6 @@ export function LogDetailsModal({ log, open, onOpenChange }: LogDetailsModalProp
                             </div>
                         </div>
 
-                        {/* Payload Comparison */}
                         <div className="grid md:grid-cols-2 gap-6">
                             <div className="space-y-2">
                                 <p className="text-sm font-semibold flex items-center">
@@ -89,7 +87,6 @@ export function LogDetailsModal({ log, open, onOpenChange }: LogDetailsModalProp
                             </div>
                         </div>
 
-                        {/* Metadata */}
                         {log.metadata && Object.keys(log.metadata).length > 0 && (
                             <div className="space-y-2 pt-4">
                                 <p className="text-sm font-semibold">Metadata / Request Context</p>

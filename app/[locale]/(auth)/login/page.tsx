@@ -59,7 +59,6 @@ export default function LoginPage() {
       return
     }
 
-    // Attempt to send welcome email in background
     if (authData.user) {
       (async () => {
         try {
@@ -72,7 +71,6 @@ export default function LoginPage() {
         }
       })()
 
-      // Track Login Session
       try {
         await trackLoginSessionAction(navigator.userAgent, 'email', authData.user.id)
       } catch (err) {

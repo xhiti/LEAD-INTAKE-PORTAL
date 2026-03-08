@@ -43,7 +43,6 @@ export function SubmissionHistory({ history }: Props) {
                 const isStatusChange = !!item.new_status
                 const isPriorityChange = !!item.new_priority
 
-                // Icon + colours per new_status
                 type DotMeta = { icon: React.ReactElement; ring: string; bg: string }
                 const statusDot: Record<string, DotMeta> = {
                     new: { icon: <Inbox className="h-4 w-4" />, ring: 'ring-sky-500/10 border-sky-400/40', bg: 'bg-sky-500/10 text-sky-500' },
@@ -75,7 +74,6 @@ export function SubmissionHistory({ history }: Props) {
                         </div>
 
                         <div className="space-y-2">
-                            {/* User row + status change right-aligned */}
                             <div className="flex items-start justify-between gap-4">
                                 <div className="flex flex-col">
                                     <span className="text-sm font-bold text-foreground/90 leading-tight">
@@ -91,7 +89,6 @@ export function SubmissionHistory({ history }: Props) {
                                     </div>
                                 </div>
 
-                                {/* Status / priority change — right side */}
                                 <div className="flex flex-col items-end gap-1 shrink-0">
                                     {isStatusChange && (
                                         <div className="flex items-center gap-1.5">
@@ -118,7 +115,6 @@ export function SubmissionHistory({ history }: Props) {
                                 </div>
                             </div>
 
-                            {/* Note directly below — no card */}
                             {item.note && (
                                 <div className="relative pl-4 py-0.5">
                                     <div className="absolute left-0 top-0 bottom-0 w-[2px] bg-primary/20 rounded-full" />

@@ -61,7 +61,6 @@ export function DashboardTopbar({ profile, locale }: Props) {
   useEffect(() => {
     setMounted(true)
 
-    // Resolve relative avatar URLs (custom uploads) vs absolute URLs (Google OAuth)
     if (profile.avatar_url) {
       if (profile.avatar_url.startsWith('http')) {
         setAvatarPreview(profile.avatar_url)
@@ -85,7 +84,6 @@ export function DashboardTopbar({ profile, locale }: Props) {
     router.push(segments.join('/'))
   }
 
-  // Prevent hydration mismatch on SVG icons by rendering null or a default until mounted
   const ThemeIcon = !mounted ? Monitor : (theme === 'dark' ? Moon : theme === 'light' ? Sun : Monitor)
 
   return (
@@ -105,7 +103,6 @@ export function DashboardTopbar({ profile, locale }: Props) {
       <div className="flex items-center gap-1">
         <NotificationBell />
 
-        {/* Theme toggle */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl text-muted-foreground hover:text-foreground">
@@ -127,7 +124,6 @@ export function DashboardTopbar({ profile, locale }: Props) {
           </DropdownMenuContent>
         </DropdownMenu>
 
-        {/* Language */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl text-muted-foreground hover:text-foreground">
@@ -149,7 +145,6 @@ export function DashboardTopbar({ profile, locale }: Props) {
           </DropdownMenuContent>
         </DropdownMenu>
 
-        {/* User menu */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="sm" className="h-9 gap-2 px-2 rounded-xl ml-1">

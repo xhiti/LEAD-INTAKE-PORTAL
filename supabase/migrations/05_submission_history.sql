@@ -1,4 +1,3 @@
--- Create submission_history table for tracking status changes and notes
 CREATE TABLE submission_history (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   submission_id UUID NOT NULL REFERENCES submissions(id) ON DELETE CASCADE,
@@ -14,10 +13,8 @@ CREATE TABLE submission_history (
   updated_at TIMESTAMPTZ DEFAULT NOW() NOT NULL
 );
 
--- Enable RLS
 ALTER TABLE submission_history ENABLE ROW LEVEL SECURITY;
 
--- Policies
 CREATE POLICY "Admins can view all history"
   ON submission_history FOR SELECT
   USING (
@@ -34,6 +31,5 @@ CREATE POLICY "Users can view history of their own submissions"
     )
   );
 
--- Indexes
 CREATE INDEX idx_submission_history_submission_id ON submission_history(submission_id);
 CREATE INDEX idx_submission_history_created_at ON submission_history(created_at DESC);

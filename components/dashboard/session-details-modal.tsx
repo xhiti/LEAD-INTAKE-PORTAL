@@ -68,7 +68,6 @@ export function SessionDetailsModal({ session, open, onOpenChange }: SessionDeta
 
                 <ScrollArea className="flex-1 max-h-[60vh]">
                     <div className="px-6 py-4 space-y-6">
-                        {/* Device & Network */}
                         <div>
                             <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-1">Device &amp; Network</p>
                             <div>
@@ -80,7 +79,6 @@ export function SessionDetailsModal({ session, open, onOpenChange }: SessionDeta
                             </div>
                         </div>
 
-                        {/* Timeline */}
                         <div>
                             <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-1">Timeline</p>
                             <div>
@@ -96,7 +94,6 @@ export function SessionDetailsModal({ session, open, onOpenChange }: SessionDeta
                             </div>
                         </div>
 
-                        {/* User Agent */}
                         {session.user_agent && (
                             <div>
                                 <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-2">User Agent</p>
@@ -106,7 +103,6 @@ export function SessionDetailsModal({ session, open, onOpenChange }: SessionDeta
                             </div>
                         )}
 
-                        {/* Session ID */}
                         <div>
                             <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-2">Session ID</p>
                             <div className="bg-muted/50 rounded-lg p-3 border border-border/50">
