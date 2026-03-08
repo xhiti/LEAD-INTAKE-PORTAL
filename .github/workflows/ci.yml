@@ -20,22 +20,13 @@ concurrency:
 
 env:
   NODE_VERSION: "20"
-  # ── Dummy env vars required by Next.js build (not used at runtime) ──
-  NEXT_PUBLIC_SUPABASE_URL: "https://placeholder.supabase.co"
-  NEXT_PUBLIC_SUPABASE_ANON_KEY: "placeholder-anon-key"
-  SUPABASE_SERVICE_ROLE_KEY: "placeholder-service-role-key"
-  GEMINI_API_KEY: "placeholder"
-  GROQ_API_KEY: "placeholder"
-  GLM_API_KEY: "placeholder"
-  RESEND_API_KEY: "placeholder"
-  RESEND_FROM_EMAIL: "no-reply@example.com"
-  RESEND_FROM_NAME: "CI Build"
-  NEXT_PUBLIC_APP_URL: "http://localhost:3000"
-  NEXT_PUBLIC_VAPID_PUBLIC_KEY: "placeholder-vapid-public"
-  VAPID_PRIVATE_KEY: "placeholder-vapid-private"
-  VAPID_EMAIL: "mailto:ci@example.com"
 
 jobs:
+  # ────────────────────────────────────────────────────────────────────
+  # Quality Gate
+  # ────────────────────────────────────────────────────────────────────
+  # (omitted)
+  
   # ────────────────────────────────────────────────────────────────────
   # Quality Gate
   # ────────────────────────────────────────────────────────────────────
@@ -80,6 +71,21 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     needs: quality
+    env:
+      # ── Dummy env vars required by Next.js build (not used at runtime) ──
+      NEXT_PUBLIC_SUPABASE_URL: "https://placeholder.supabase.co"
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: "placeholder-anon-key"
+      SUPABASE_SERVICE_ROLE_KEY: "placeholder-service-role-key"
+      GEMINI_API_KEY: "placeholder"
+      GROQ_API_KEY: "placeholder"
+      GLM_API_KEY: "placeholder"
+      RESEND_API_KEY: "placeholder"
+      RESEND_FROM_EMAIL: "no-reply@example.com"
+      RESEND_FROM_NAME: "CI Build"
+      NEXT_PUBLIC_APP_URL: "http://localhost:3000"
+      NEXT_PUBLIC_VAPID_PUBLIC_KEY: "BML0u6vH4_xP8e-28qP8f_e-28qP8f_e-28qP8f_e-28qP8f_e-28qP8f_e-28qP8f_e-28qP8f_e-28qP8f_e-28qP8f_e-28q"
+      VAPID_PRIVATE_KEY: "placeholder-vapid-private"
+      VAPID_EMAIL: "mailto:ci@example.com"
 
     steps:
       - name: 📥 Checkout repository

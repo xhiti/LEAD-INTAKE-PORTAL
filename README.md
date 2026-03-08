@@ -224,7 +224,16 @@ To enable automated deployments, you must add the following secrets to **GitHub 
 > [!TIP]
 > You can also find `VERCEL_ORG_ID` and `VERCEL_PROJECT_ID` in the `.vercel/project.json` file created after running `vercel link` on your machine.
 
-### 2. General Environment Variables
+### 2. Supabase Configuration (Authentication)
+
+For Google Sign-In and email links to work in production, you must update your **Supabase Dashboard**:
+
+1. Go to **Authentication > URL Configuration**.
+2. **Site URL**: Set this to `https://liportal.vercel.app`.
+3. **Redirect URLs**: Add `https://liportal.vercel.app/**`.
+4. **Google Provider**: Ensure the Google provider is enabled in **Authentication > Providers** and matches your Google Cloud Console credentials.
+
+### 3. General Environment Variables
 
 Copy the example file and fill in your credentials:
 
