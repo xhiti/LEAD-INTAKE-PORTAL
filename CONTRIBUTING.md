@@ -1033,60 +1033,71 @@ Action occurs (e.g., new submission)
 
 ### Login Page
 *<!-- Add screenshot here -->*
+<img width="1920" height="911" alt="screencapture-liportal-vercel-app-en-login-2026-03-08-21_04_27" src="https://github.com/user-attachments/assets/d8829fe3-813c-4453-9655-b680b1d71493" />
 
 ### Register Page
 *<!-- Add screenshot here -->*
+<img width="1920" height="911" alt="screencapture-liportal-vercel-app-en-register-2026-03-08-21_04_38" src="https://github.com/user-attachments/assets/4e946c1b-49b9-4c83-a0a2-5b60b1223506" />
 
 ### Dashboard
 *<!-- Add screenshot here -->*
+<img width="1910" height="903" alt="Screenshot 2026-03-08 210722" src="https://github.com/user-attachments/assets/22683093-7b96-4736-9672-148e6e2b4dd1" />
 
 ### Analytics
 *<!-- Add screenshot here -->*
+<img width="1913" height="901" alt="Screenshot 2026-03-08 210806" src="https://github.com/user-attachments/assets/81894b43-f330-414c-b826-a2e382174c4b" />
 
 ### Register Submission
 *<!-- Add screenshot here -->*
+<img width="1919" height="903" alt="Screenshot 2026-03-08 210819" src="https://github.com/user-attachments/assets/7af676af-5f47-473c-8a81-b2b5922c2d39" />
 
 ### My Submissions
 *<!-- Add screenshot here -->*
+<img width="1918" height="904" alt="Screenshot 2026-03-08 210833" src="https://github.com/user-attachments/assets/90894b00-a8b1-4678-8587-34bc06e237db" />
 
 ### All Submissions (Admin)
 *<!-- Add screenshot here -->*
+<img width="1918" height="905" alt="Screenshot 2026-03-08 210858" src="https://github.com/user-attachments/assets/36ee5e24-fbd7-4a9b-a9c2-5db512e5f2bd" />
 
 ### Submission Detail
 *<!-- Add screenshot here -->*
+#### New submission
+<img width="1917" height="905" alt="Screenshot 2026-03-08 211516" src="https://github.com/user-attachments/assets/7cc4811e-cb89-4131-ac52-81e8d5dd77a3" />
+
+#### Closed submission
+<img width="1919" height="904" alt="Screenshot 2026-03-08 211500" src="https://github.com/user-attachments/assets/23761b86-b232-4a14-8bb2-81a1537b14fc" />
 
 ### Kanban Board
 *<!-- Add screenshot here -->*
+<img width="1918" height="903" alt="Screenshot 2026-03-08 210938" src="https://github.com/user-attachments/assets/450c99d2-4f4c-4f68-ab61-6829dfcdf2d5" />
 
 ### Calendar View
 *<!-- Add screenshot here -->*
+<img width="1911" height="906" alt="Screenshot 2026-03-08 210921" src="https://github.com/user-attachments/assets/535a150b-76fe-4689-84b5-9cb1977124c6" />
 
 ### AI Assistant
 *<!-- Add screenshot here -->*
+<img width="1918" height="906" alt="Screenshot 2026-03-08 210956" src="https://github.com/user-attachments/assets/272faee1-28b9-4e20-936a-f8660abc5359" />
 
 ### Profile Settings
 *<!-- Add screenshot here -->*
-
-### Notification Preferences
-*<!-- Add screenshot here -->*
+<img width="1914" height="903" alt="Screenshot 2026-03-08 211056" src="https://github.com/user-attachments/assets/091cd777-cefa-4327-8d97-8bdc48e62830" />
 
 ### Active Sessions
 *<!-- Add screenshot here -->*
-
-### Appearance & Settings
-*<!-- Add screenshot here -->*
-
-### User Management (Admin)
-*<!-- Add screenshot here -->*
+<img width="1918" height="903" alt="Screenshot 2026-03-08 211042" src="https://github.com/user-attachments/assets/79669422-69ec-447c-bc2c-b080109a4c37" />
 
 ### Industry Management (Admin)
 *<!-- Add screenshot here -->*
+<img width="1907" height="902" alt="Screenshot 2026-03-08 211115" src="https://github.com/user-attachments/assets/4c38ebc4-89c0-42a7-9c44-d770230b58d0" />
 
 ### Audit Logs (Admin)
 *<!-- Add screenshot here -->*
+<img width="1919" height="907" alt="Screenshot 2026-03-08 211129" src="https://github.com/user-attachments/assets/93836619-7191-42ba-8c4b-400c437f12bc" />
 
 ### Public Intake Form
 *<!-- Add screenshot here -->*
+<img width="1920" height="1161" alt="screencapture-liportal-vercel-app-en-2026-03-08-21_04_13" src="https://github.com/user-attachments/assets/61c17386-5700-4d7d-a3fd-e995beb0ca7c" />
 
 ---
 
