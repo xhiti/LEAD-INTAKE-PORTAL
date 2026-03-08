@@ -15,6 +15,10 @@ const poppins = Poppins({
 
 const locales = ['en', 'fr', 'es', 'sq']
 
+export function generateStaticParams() {
+  return locales.map((locale) => ({ locale }))
+}
+
 export default async function LocaleLayout({
   children,
   params,
@@ -22,7 +26,7 @@ export default async function LocaleLayout({
   children: React.ReactNode
   params: { locale: string }
 }) {
-  const { locale } = await Promise.resolve(params)
+  const { locale } = await params
 
   if (!locales.includes(locale)) notFound()
 
