@@ -81,7 +81,8 @@
     "resetPassword": "Restablecer contraseña",
     "checkEmail": "Revisa tu correo para el enlace de restablecimiento.",
     "loginButton": "Iniciar sesión",
-    "registerButton": "Crear cuenta"
+    "registerButton": "Crear cuenta",
+    "backToHome": "Volver al Inicio"
   },
   "dashboard": {
     "title": "Panel de control",

@@ -81,7 +81,8 @@
     "resetPassword": "Reset Password",
     "checkEmail": "Check your email for the reset link.",
     "loginButton": "Sign in",
-    "registerButton": "Create account"
+    "registerButton": "Create account",
+    "backToHome": "Back to Home"
   },
   "dashboard": {
     "title": "Dashboard",

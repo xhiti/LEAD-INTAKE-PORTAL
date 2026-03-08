@@ -81,7 +81,8 @@
     "resetPassword": "Rivendosni fjalëkalimin",
     "checkEmail": "Kontrolloni emailin tuaj për lidhjen e rivendosjes.",
     "loginButton": "Hyni",
-    "registerButton": "Krijoni llogari"
+    "registerButton": "Krijoni llogari",
+    "backToHome": "Kthehu te Ballina"
   },
   "dashboard": {
     "title": "Paneli",

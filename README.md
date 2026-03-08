@@ -1,3 +1,11 @@
+<div align="center">
+  <h3>
+    <b>📖 README</b> &nbsp;&nbsp; | &nbsp;&nbsp; 
+    <a href="./OVERVIEW.md">📑 OVERVIEW</a> &nbsp;&nbsp; | &nbsp;&nbsp; 
+    <a href="./LICENSE">⚖️ LICENSE</a>
+  </h3>
+</div>
+
 <p align="center">
   <img src="https://img.shields.io/badge/Next.js-14.2.18-black?style=for-the-badge&logo=next.js" alt="Next.js" />
   <img src="https://img.shields.io/badge/Supabase-PostgreSQL-3ECF8E?style=for-the-badge&logo=supabase" alt="Supabase" />
@@ -31,7 +39,7 @@
 
 ### 🤖 AI-Powered Lead Classification
 - **Multi-model fallback engine** — Gemini 1.5 Flash → Groq LLaMA 3.1 → GLM-4 Flash
-- Automatically categorizes every submission into: `Automation`, `Website`, `AI Integration`, `SEO`, `Custom Software`, or `Other`
+- **Expanded Category System** — 50+ specialized categories across Tech, Design, Marketing, and Business.
 - Returns a confidence score (0–1) and a professional summary for each lead
 - AI-generated status change notes when leads move through the pipeline
 - **AI Assistant** — context-aware chatbot that analyzes all your submissions and provides strategic business insights
@@ -63,6 +71,7 @@
 - **Register Submission** — multi-step form with validation (Zod + react-hook-form) and real-time AI classification
 - **My Submissions** — personal submissions list with search, filter, and sort
 - **All Submissions** (Admin/Moderator) — full management table with inline status/priority updates
+- **Server-Side Pagination & Filtering** — high-performance data fetching optimized for large datasets (URL-driven state)
 - **Submission Detail** — complete view with AI results, status history timeline, notes, and edit capabilities
 - **Kanban Board** — drag-and-drop board (powered by dnd-kit) with columns: New → Reviewed → In Progress → Closed → Archived
 - **Calendar View** — monthly/weekly calendar of submissions by date

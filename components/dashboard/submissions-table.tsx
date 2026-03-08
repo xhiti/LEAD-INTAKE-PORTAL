@@ -31,6 +31,9 @@ type Submission = Database['public']['Tables']['submissions']['Row']
 
 interface Props {
   submissions: Submission[]
+  totalCount: number
+  totalPages: number
+  currentPage: number
   isAdmin: boolean
   locale: string
   userId: string
@@ -42,13 +45,21 @@ const STATUSES = ['new', 'reviewed', 'in_progress', 'closed', 'archived'] as con
 const PRIORITIES = ['low', 'medium', 'high', 'urgent'] as const
 const CATEGORIES = AI_CATEGORIES
 
-export function SubmissionsTable({ submissions: initial, isAdmin, locale, userId, isMySubmissions, industries }: Props) {
+export function SubmissionsTable({
+  submissions,
+  totalCount,
+  totalPages,
+  currentPage,
+  isAdmin,
+  locale,
+  userId,
+  isMySubmissions,
+  industries
+}: Props) {
   const t = useTranslations('submissions')
   const router = useRouter()
   const { toast } = useToast()
-  const supabase = createClient()
 
-  const [submissions, setSubmissions] = useState(initial)
   const [searchName, setSearchName] = useState('')
   const [searchSurname, setSearchSurname] = useState('')
   const [searchCompany, setSearchCompany] = useState('')
@@ -62,6 +73,71 @@ export function SubmissionsTable({ submissions: initial, isAdmin, locale, userId
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
   const [isExporting, setIsExporting] = useState(false)
+  const [isSyncing, setIsSyncing] = useState(false)
+
+  // Sync state with URL on initial load and when URL changes
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    setSearchName(params.get('searchName') || '')
+    setSearchSurname(params.get('searchSurname') || '')
+    setSearchCompany(params.get('searchCompany') || '')
+    setStatusFilter(params.get('status') || 'all')
+    setCategoryFilter(params.get('category') || 'all')
+    setIndustryFilter(params.get('industry') || 'all')
+    setPriorityFilter(params.get('priority') || 'all')
+
+    const fd = params.get('fromDate')
+    if (fd) setFromDate(new Date(fd))
+
+    const td = params.get('toDate')
+    if (td) setToDate(new Date(td))
+  }, [])
+
+  // Update URL when filters or page changes
+  const updateUrl = (newParams: Record<string, string | number | undefined | null>, shouldReplace = false) => {
+    const params = new URLSearchParams(window.location.search)
+    Object.entries(newParams).forEach(([key, value]) => {
+      if (value === undefined || value === null || value === '' || value === 'all') {
+        params.delete(key)
+      } else {
+        params.set(key, String(value))
+      }
+    })
+
+    if (!newParams.page) {
+      params.set('page', '1')
+    }
+
+    const url = `${window.location.pathname}?${params.toString()}`
+    if (shouldReplace) {
+      router.replace(url)
+    } else {
+      router.push(url)
+    }
+  }
+
+  // Debounced search updates
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const params = new URLSearchParams(window.location.search)
+      if (
+        searchName !== (params.get('searchName') || '') ||
+        searchSurname !== (params.get('searchSurname') || '') ||
+        searchCompany !== (params.get('searchCompany') || '')
+      ) {
+        updateUrl({
+          searchName,
+          searchSurname,
+          searchCompany
+        })
+      }
+    }, 500)
+    return () => clearTimeout(timer)
+  }, [searchName, searchSurname, searchCompany])
+
+  const handlePageChange = (newPage: number) => {
+    updateUrl({ page: newPage })
+  }
 
   const filtered = useMemo(() => {
     return submissions.filter(s => {
@@ -98,8 +174,8 @@ export function SubmissionsTable({ submissions: initial, isAdmin, locale, userId
     try {
       const res = await deleteSubmissionAction(deletingId)
       if (res.success) {
-        setSubmissions(prev => prev.filter(s => s.id !== deletingId))
         toast({ title: t('success.deleted') || 'Deleted', description: 'Submission removed successfully.' })
+        router.refresh()
         setDeletingId(null)
       } else {
         throw new Error(res.error)
@@ -220,7 +296,10 @@ export function SubmissionsTable({ submissions: initial, isAdmin, locale, userId
             )}
 
             <div className="space-y-2">
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <Select value={statusFilter} onValueChange={v => {
+                setStatusFilter(v)
+                updateUrl({ status: v })
+              }}>
                 <SelectTrigger className="h-10 bg-background/50">
                   <SelectValue placeholder={t('filterStatus')} />
                 </SelectTrigger>
@@ -232,7 +311,10 @@ export function SubmissionsTable({ submissions: initial, isAdmin, locale, userId
             </div>
 
             <div className="space-y-2">
-              <Select value={industryFilter} onValueChange={setIndustryFilter}>
+              <Select value={industryFilter} onValueChange={v => {
+                setIndustryFilter(v)
+                updateUrl({ industry: v })
+              }}>
                 <SelectTrigger className="h-10 bg-background/50">
                   <SelectValue placeholder={t('filterIndustry')} />
                 </SelectTrigger>
@@ -243,7 +325,10 @@ export function SubmissionsTable({ submissions: initial, isAdmin, locale, userId
               </Select>
             </div>
             <div className="space-y-2">
-              <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+              <Select value={categoryFilter} onValueChange={v => {
+                setCategoryFilter(v)
+                updateUrl({ category: v })
+              }}>
                 <SelectTrigger className="h-10 bg-background/50">
                   <SelectValue placeholder={t('filterCategory')} />
                 </SelectTrigger>
@@ -259,7 +344,10 @@ export function SubmissionsTable({ submissions: initial, isAdmin, locale, userId
                 <div className="space-y-2">
                   <DatePicker
                     date={fromDate}
-                    setDate={setFromDate}
+                    setDate={d => {
+                      setFromDate(d)
+                      updateUrl({ fromDate: d?.toISOString() })
+                    }}
                     placeholder={t('select.fromDate')}
                     className="w-full"
                   />
@@ -268,7 +356,10 @@ export function SubmissionsTable({ submissions: initial, isAdmin, locale, userId
                 <div className="space-y-2">
                   <DatePicker
                     date={toDate}
-                    setDate={setToDate}
+                    setDate={d => {
+                      setToDate(d)
+                      updateUrl({ toDate: d?.toISOString() })
+                    }}
                     placeholder={t('select.toDate')}
                     className="w-full"
                   />
@@ -281,7 +372,7 @@ export function SubmissionsTable({ submissions: initial, isAdmin, locale, userId
 
       <div className="flex justify-between items-center mb-4">
         <p className="text-sm font-medium text-muted-foreground bg-muted/30 px-3 py-1.5 rounded-lg border border-border/40">
-          {t('results', { count: filtered.length })}
+          {t('results', { count: totalCount })}
         </p>
         <Button
           variant="outline"
@@ -300,7 +391,7 @@ export function SubmissionsTable({ submissions: initial, isAdmin, locale, userId
       </div>
 
       <DataTable
-        data={filtered}
+        data={submissions}
         columns={[
           {
             id: 'name',
@@ -392,7 +483,10 @@ export function SubmissionsTable({ submissions: initial, isAdmin, locale, userId
         emptyState={{
           title: t('noResults'),
         }}
-        defaultPageSize={10}
+        serverSide={true}
+        totalItems={totalCount}
+        currentPage={currentPage}
+        onPageChange={handlePageChange}
         showPageInfo={true}
       />
 

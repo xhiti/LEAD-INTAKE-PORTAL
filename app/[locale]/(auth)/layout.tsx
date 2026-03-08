@@ -1,4 +1,7 @@
-import { Sparkles, Zap, BarChart3, Shield } from 'lucide-react'
+import { Sparkles, Zap, BarChart3, Shield, ArrowLeft } from 'lucide-react'
+import Link from 'next/link'
+import { Button } from '@/components/ui/button'
+import { getTranslations } from 'next-intl/server'
 
 const features = [
   {
@@ -18,7 +21,16 @@ const features = [
   },
 ]
 
-export default function AuthLayout({ children }: { children: React.ReactNode }) {
+export default async function AuthLayout({
+  children,
+  params
+}: {
+  children: React.ReactNode,
+  params: { locale: string }
+}) {
+  const { locale } = await Promise.resolve(params)
+  const t = await getTranslations('auth')
+
   return (
     <div className="h-full overflow-y-auto grid lg:grid-cols-2">
       {/* Left panel */}
@@ -70,7 +82,16 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
       </div>
 
       {/* Right: form */}
-      <div className="flex items-center justify-center p-8 bg-gray-50 dark:bg-black">
+      <div className="flex items-center justify-center p-8 bg-gray-50 dark:bg-black relative min-h-screen lg:min-h-0">
+        <div className="absolute top-4 left-4 lg:top-8 lg:left-8 z-10">
+          <Button variant="ghost" size="sm" asChild className="gap-2 text-muted-foreground hover:text-foreground group">
+            <Link href={`/${locale}`}>
+              <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
+              {t('backToHome')}
+            </Link>
+          </Button>
+        </div>
+
         <div className="w-full max-w-md">
           {/* Mobile logo */}
           <div className="flex items-center gap-2 text-lg font-bold lg:hidden mb-10">

@@ -295,6 +295,95 @@ export async function getSubmissionsForExportAction(filters: {
     }
 }
 
+export async function getSubmissionsAction({
+    page = 1,
+    pageSize = 10,
+    filters = {},
+    isAdmin = false,
+    userId
+}: {
+    page?: number;
+    pageSize?: number;
+    filters?: {
+        searchName?: string;
+        searchSurname?: string;
+        searchCompany?: string;
+        status?: string;
+        category?: string;
+        industry?: string;
+        priority?: string;
+        fromDate?: string;
+        toDate?: string;
+    };
+    isAdmin?: boolean;
+    userId: string;
+}) {
+    try {
+        const serviceClient = await createServiceClient()
+
+        let query = (serviceClient as any)
+            .from('submissions')
+            .select('*', { count: 'exact' })
+            .eq('is_active', true)
+            .eq('is_deleted', false)
+            .order('created_at', { ascending: false })
+
+        if (!isAdmin) {
+            query = query.eq('submitted_by', userId)
+        }
+
+        if (filters.searchName) {
+            query = query.ilike('name', `%${filters.searchName}%`)
+        }
+        if (filters.searchSurname) {
+            query = query.ilike('name', `%${filters.searchSurname}%`)
+        }
+        if (filters.searchCompany) {
+            query = query.ilike('business_name', `%${filters.searchCompany}%`)
+        }
+        if (filters.status && filters.status !== 'all') {
+            query = query.eq('status', filters.status)
+        }
+        if (filters.category && filters.category !== 'all') {
+            query = query.eq('ai_category', filters.category)
+        }
+        if (filters.industry && filters.industry !== 'all') {
+            query = query.eq('industry', filters.industry)
+        }
+        if (filters.priority && filters.priority !== 'all') {
+            query = query.eq('priority', filters.priority)
+        }
+        if (filters.fromDate) {
+            query = query.gte('created_at', filters.fromDate)
+        }
+        if (filters.toDate) {
+            const endOfDay = new Date(filters.toDate)
+            endOfDay.setHours(23, 59, 59, 999)
+            query = query.lte('created_at', endOfDay.toISOString())
+        }
+
+        const from = (page - 1) * pageSize
+        const to = from + pageSize - 1
+
+        query = query.range(from, to)
+
+        const { data, count, error } = await query
+
+        if (error) throw error
+
+        return {
+            success: true,
+            data: data || [],
+            totalCount: count || 0,
+            totalPages: Math.ceil((count || 0) / pageSize),
+            currentPage: page
+        }
+    } catch (error) {
+        console.error('Fetch submissions error:', error)
+        return { error: 'Failed to fetch submissions' }
+    }
+}
+
 export async function updateSubmissionStatusAction(
     id: string,
     data: {

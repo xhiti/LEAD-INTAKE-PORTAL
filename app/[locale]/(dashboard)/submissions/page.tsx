@@ -5,14 +5,39 @@ import { Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { SubmissionsTable } from '@/components/dashboard/submissions-table'
 import { PageHeader } from '@/components/layout/page-header'
+import { getSubmissionsAction, deleteSubmissionAction } from '@/lib/actions/submissions'
 import { getIndustriesAction } from '@/lib/actions/industries'
 import type { Database } from '@/lib/supabase/database.types'
 
 type Profile = Database['public']['Tables']['profiles']['Row']
 type Submission = Database['public']['Tables']['submissions']['Row']
 
-export default async function SubmissionsPage({ params }: { params: { locale: string } }) {
+export default async function SubmissionsPage({
+  params,
+  searchParams
+}: {
+  params: { locale: string },
+  searchParams?: { [key: string]: string | string[] | undefined }
+}) {
   const { locale } = await Promise.resolve(params)
+  // Ensure searchParams is handled safely in Next.js 15
+  const sParams = await Promise.resolve(searchParams || {})
+
+  const page = Number(sParams.page) || 1
+  const pageSize = Number(sParams.pageSize) || 10
+
+  const filters = {
+    searchName: sParams.searchName as string,
+    searchSurname: sParams.searchSurname as string,
+    searchCompany: sParams.searchCompany as string,
+    status: sParams.status as string,
+    category: sParams.category as string,
+    industry: sParams.industry as string,
+    priority: sParams.priority as string,
+    fromDate: sParams.fromDate as string,
+    toDate: sParams.toDate as string,
+  }
+
   const t = await getTranslations('submissions')
   const supabase = await createClient()
 
@@ -21,18 +46,13 @@ export default async function SubmissionsPage({ params }: { params: { locale: st
 
   const isAdmin = profile?.role === 'admin' || profile?.role === 'moderator'
 
-  let query = supabase
-    .from('submissions')
-    .select('*')
-    .eq('is_active', true)
-    .eq('is_deleted', false)
-    .order('created_at', { ascending: false })
-
-  if (!isAdmin) {
-    query = query.eq('submitted_by', user!.id)
-  }
-
-  const { data: submissions } = await query as { data: Submission[] | null }
+  const submissionsResult = await getSubmissionsAction({
+    page,
+    pageSize,
+    filters,
+    isAdmin,
+    userId: user!.id
+  })
 
   const industriesResult = await getIndustriesAction()
   const industries: string[] = industriesResult.success
@@ -53,7 +73,10 @@ export default async function SubmissionsPage({ params }: { params: { locale: st
         </Button>
       </PageHeader>
       <SubmissionsTable
-        submissions={submissions ?? []}
+        submissions={submissionsResult.success ? submissionsResult.data : []}
+        totalCount={submissionsResult.success ? submissionsResult.totalCount : 0}
+        totalPages={submissionsResult.success ? submissionsResult.totalPages : 0}
+        currentPage={page}
         isAdmin={isAdmin}
         locale={locale}
         userId={user!.id}

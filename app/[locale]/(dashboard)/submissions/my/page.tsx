@@ -3,9 +3,29 @@ import { getTranslations } from 'next-intl/server'
 import { redirect } from 'next/navigation'
 import { SubmissionsTable } from '@/components/dashboard/submissions-table'
 import { getIndustriesAction } from '@/lib/actions/industries'
+import { getSubmissionsAction } from '@/lib/actions/submissions'
 
-export default async function MySubmissionsPage({ params }: { params: { locale: string } }) {
+export default async function MySubmissionsPage({
+    params,
+    searchParams
+}: {
+    params: { locale: string },
+    searchParams?: { [key: string]: string | string[] | undefined }
+}) {
     const { locale } = await Promise.resolve(params)
+    const sParams = await Promise.resolve(searchParams || {})
+
+    const page = Number(sParams.page) || 1
+    const pageSize = Number(sParams.pageSize) || 10
+
+    const filters = {
+        searchCompany: sParams.searchCompany as string,
+        status: sParams.status as string,
+        category: sParams.category as string,
+        industry: sParams.industry as string,
+        priority: sParams.priority as string,
+    }
+
     const t = await getTranslations('submissions')
     const supabase = await createClient()
 
@@ -20,13 +40,13 @@ export default async function MySubmissionsPage({ params }: { params: { locale: 
 
     if (!profile) redirect(`/${locale}/login`)
 
-    const { data: submissions } = await supabase
-        .from('submissions')
-        .select('*')
-        .eq('submitted_by', user.id)
-        .eq('is_active', true)
-        .eq('is_deleted', false)
-        .order('created_at', { ascending: false })
+    const submissionsResult = await getSubmissionsAction({
+        page,
+        pageSize,
+        filters,
+        isAdmin: false,
+        userId: user.id
+    })
 
     const industriesResult = await getIndustriesAction()
     const industries: string[] = industriesResult.success
@@ -42,7 +62,10 @@ export default async function MySubmissionsPage({ params }: { params: { locale: 
                 </p>
             </div>
             <SubmissionsTable
-                submissions={submissions ?? []}
+                submissions={submissionsResult.success ? submissionsResult.data : []}
+                totalCount={submissionsResult.success ? submissionsResult.totalCount : 0}
+                totalPages={submissionsResult.success ? submissionsResult.totalPages : 0}
+                currentPage={page}
                 isMySubmissions={true}
                 isAdmin={false}
                 locale={locale}

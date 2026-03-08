@@ -81,7 +81,8 @@
     "resetPassword": "Réinitialiser le mot de passe",
     "checkEmail": "Vérifiez votre e-mail pour le lien de réinitialisation.",
     "loginButton": "Se connecter",
-    "registerButton": "Créer un compte"
+    "registerButton": "Créer un konto",
+    "backToHome": "Retour à l'accueil"
   },
   "dashboard": {
     "title": "Tableau de bord",
