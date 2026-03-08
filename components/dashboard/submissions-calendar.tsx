@@ -101,7 +101,7 @@ export function SubmissionsCalendar({ submissions, locale }: Props) {
                 </div>
             </div>
 
-            <div className="flex-1 min-h-[500px] relative overflow-hidden bg-card rounded-xl border shadow-md">
+            <div className="flex-1 min-h-[900px] relative overflow-hidden bg-card rounded-xl border shadow-md">
                 <AnimatePresence mode="wait" custom={direction}>
                     <motion.div
                         key={`${view}-${currentDate.toISOString()}`}
