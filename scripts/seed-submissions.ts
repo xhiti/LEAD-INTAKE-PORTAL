@@ -97,6 +97,22 @@ function getRandomDate(start: Date, end: Date) {
     return new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()))
 }
 
+const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
+
+async function withRetry<T>(fn: () => Promise<T>, retries = 3, baseDelay = 2000): Promise<T> {
+    try {
+        return await fn()
+    } catch (error: any) {
+        if (retries > 0 && (error?.status === 429 || error?.message?.includes('rate_limit'))) {
+            const wait = baseDelay * (4 - retries)
+            console.log(`\n⏳ Rate limit hit, retrying in ${wait}ms... (${retries} retries left)`)
+            await delay(wait)
+            return withRetry(fn, retries - 1, baseDelay)
+        }
+        throw error
+    }
+}
+
 async function seed() {
     console.log("🚀 Fetching industries from database...")
     const { data: dbIndustries, error: indError } = await supabase.from('industries').select('title')
@@ -106,16 +122,18 @@ async function seed() {
         : ["Healthcare", "Real Estate", "Legal", "Finance", "Professional Services", "Other"]
 
     console.log(`✅ Loaded ${activeIndustries.length} industries: ${activeIndustries.join(', ')}`)
-    console.log("🚀 Starting Bulk Submission Seeding (500 items)...")
+    console.log("🚀 Starting Bulk Submission Seeding (200 items)...")
 
     const startDate = new Date('2026-01-01')
     const endDate = new Date()
 
-    const BATCH_SIZE = 5;
-    for (let i = 1; i <= 200; i += BATCH_SIZE) {
+    const TOTAL_SUBMISSIONS = 200;
+    const BATCH_SIZE = 3; // Reduced for safer API usage
+
+    for (let i = 1; i <= TOTAL_SUBMISSIONS; i += BATCH_SIZE) {
         const batchPromises = [];
 
-        for (let j = 0; j < BATCH_SIZE && (i + j) <= 200; j++) {
+        for (let j = 0; j < BATCH_SIZE && (i + j) <= TOTAL_SUBMISSIONS; j++) {
             const currentIdx = i + j;
             batchPromises.push((async () => {
                 const firstName = firstNames[Math.floor(Math.random() * firstNames.length)]
@@ -132,7 +150,7 @@ async function seed() {
                 const businessName = `${lastName} ${businessSuffix}`
 
                 try {
-                    const aiResult = await classifySubmission(helpRequest, 'groq')
+                    const aiResult = await withRetry(() => classifySubmission(helpRequest, 'groq'))
 
                     const { error } = await supabase
                         .from('submissions')
@@ -155,23 +173,25 @@ async function seed() {
                         })
 
                     if (error) {
-                        console.error(`❌ Item ${currentIdx} failed:`, error.message)
+                        console.error(`\n❌ Item ${currentIdx} failed:`, error.message)
                     } else {
                         process.stdout.write('.') // Dot for progress
                     }
-                } catch (e) {
-                    console.error(`❌ AI Error on item ${currentIdx}:`, e)
+                } catch (e: any) {
+                    console.error(`\n❌ Error on item ${currentIdx}:`, e?.message || e)
                 }
             })());
         }
 
         await Promise.all(batchPromises);
-        if (i % 25 === 1) {
-            console.log(`\n🎉 Progress: ${Math.min(i + BATCH_SIZE - 1, 500)}/500 done!`)
+        if (i % 30 === 1) {
+            console.log(`\n🎉 Progress: ${Math.min(i + BATCH_SIZE - 1, TOTAL_SUBMISSIONS)}/${TOTAL_SUBMISSIONS} done!`)
         }
+        // Small delay between batches to avoid immediate rate limit
+        await delay(1000);
     }
 
-    console.log("✨ Seeding complete!")
+    console.log("\n✨ Seeding complete!")
 }
 
 seed()

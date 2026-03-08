@@ -175,7 +175,7 @@ export function MonthView({ date, events, locale }: ViewProps & { locale: string
                             <div
                                 key={day.toISOString()}
                                 className={cn(
-                                    'min-h-[120px] p-2 border-r border-b transition-colors group relative',
+                                    'min-h-[180px] p-2 border-r border-b transition-colors group relative',
                                     !isCurrentMonth ? 'bg-muted/10' : 'bg-card hover:bg-muted/5',
                                     idx % 7 === 6 && 'border-r-0'
                                 )}
@@ -260,7 +260,7 @@ export function WeekView({ date, events, locale }: ViewProps & { locale: string 
                     <div className="grid grid-cols-[80px_1fr] relative">
                         <div className="flex flex-col border-r bg-muted/5">
                             {hours.map((hour) => (
-                                <div key={hour.toISOString()} className="h-20 border-b p-2 text-right">
+                                <div key={hour.toISOString()} className="h-32 border-b p-2 text-right">
                                     <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-tighter">
                                         {format(hour, 'ha')}
                                     </span>
@@ -271,14 +271,14 @@ export function WeekView({ date, events, locale }: ViewProps & { locale: string 
                             {weekDays.map((day) => (
                                 <div key={day.toISOString()} className="relative border-r last:border-r-0">
                                     {hours.map((hour) => (
-                                        <div key={hour.toISOString()} className="h-20 border-b border-muted hover:bg-muted/5 transition-colors" />
+                                        <div key={hour.toISOString()} className="h-32 border-b border-muted hover:bg-muted/5 transition-colors" />
                                     ))}
                                     <div className="absolute inset-x-1 top-0 space-y-1 pt-1">
                                         {events
                                             .filter((e) => isSameDay(parseISO(e.created_at), day))
                                             .map((event) => {
                                                 const d = parseISO(event.created_at)
-                                                const top = (d.getHours() * 80) + (d.getMinutes() / 60 * 80)
+                                                const top = (d.getHours() * 128) + (d.getMinutes() / 60 * 128)
                                                 return (
                                                     <button
                                                         key={event.id}

@@ -87,7 +87,7 @@ function parseAIResponse(text: string): { summary: string; category: AICategory;
 
 async function classifyWithGemini(helpRequest: string): Promise<AIResult> {
   const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!)
-  const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
+  const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash-latest' })
 
   const result = await model.generateContent([
     { text: SYSTEM_PROMPT },
@@ -101,7 +101,7 @@ async function classifyWithGemini(helpRequest: string): Promise<AIResult> {
     summary: parsed.summary,
     category: parsed.category,
     confidence_score: parsed.confidence,
-    model_used: 'gemini-1.5-flash',
+    model_used: 'gemini-1.5-flash-latest',
     raw_response: result.response,
   }
 }
