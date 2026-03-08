@@ -158,15 +158,13 @@ export default function LoginPage() {
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <FormLabel htmlFor="password" className="text-sm font-medium" required>{t('auth.password')}</FormLabel>
-            <Link
-              href={`/${locale}/forgot-password`}
-              className="text-xs text-primary hover:text-primary/80 transition-colors"
-            >
+            <span className="text-xs text-muted-foreground cursor-not-allowed opacity-50">
               {t('auth.forgotPassword')}
-            </Link>
+            </span>
           </div>
           <PasswordInput
             id="password"
+            placeholder="••••••••"
             className="h-11 rounded-xl"
             {...register('password')}
           />

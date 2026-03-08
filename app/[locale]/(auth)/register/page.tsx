@@ -89,12 +89,12 @@ export default function RegisterPage() {
         </div>
         <div className="space-y-2">
           <FormLabel htmlFor="password" required>{t('auth.password')}</FormLabel>
-          <PasswordInput id="password" {...register('password')} />
+          <PasswordInput id="password" placeholder="••••••••" {...register('password')} />
           {errors.password && <p className="text-sm text-destructive">{errors.password.message}</p>}
         </div>
         <div className="space-y-2">
           <FormLabel htmlFor="confirmPassword" required>{t('auth.confirmPassword')}</FormLabel>
-          <PasswordInput id="confirmPassword" {...register('confirmPassword')} />
+          <PasswordInput id="confirmPassword" placeholder="••••••••" {...register('confirmPassword')} />
           {errors.confirmPassword && <p className="text-sm text-destructive">{errors.confirmPassword.message}</p>}
         </div>
         <Button type="submit" className="w-full" disabled={isSubmitting}>

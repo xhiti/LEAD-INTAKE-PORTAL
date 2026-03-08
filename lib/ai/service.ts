@@ -2,7 +2,18 @@ import { GoogleGenerativeAI } from '@google/generative-ai'
 import Groq from 'groq-sdk'
 
 export type AIModel = 'gemini' | 'groq' | 'glm'
-export type AICategory = 'Automation' | 'Website' | 'AI Integration' | 'SEO' | 'Custom Software' | 'Other'
+export type AICategory =
+  | "Automation" | "Website" | "AI Integration" | "SEO" | "Custom Software" | "Mobile App" | "API Development" | "UI/UX Design" | "DevOps & CI/CD" | "Cloud Infrastructure" | "Cybersecurity" | "Blockchain & Web3"
+  | "Logo & Branding" | "Graphic Design" | "Video Production" | "Photography" | "Motion Graphics" | "Illustration" | "Presentation Design"
+  | "Social Media Marketing" | "Paid Ads / PPC" | "Email Marketing" | "Influencer Marketing" | "Content Marketing" | "Affiliate Marketing"
+  | "Copywriting" | "Blog Writing" | "Translation" | "Proofreading & Editing" | "Technical Writing" | "Scriptwriting"
+  | "Business Consulting" | "Financial Planning" | "Accounting & Bookkeeping" | "Tax Advisory" | "Market Research" | "Business Plan Writing" | "Fundraising & Pitch Decks"
+  | "Contract Drafting" | "Legal Consulting" | "Trademark & IP" | "Compliance Advisory"
+  | "Online Tutoring" | "Corporate Training" | "Course Creation" | "Language Teaching" | "Career Coaching"
+  | "Nutrition & Dietetics" | "Mental Health Coaching" | "Personal Training" | "Medical Consulting"
+  | "Property Management" | "Real Estate Consulting" | "Interior Design" | "Architecture"
+  | "Cleaning" | "Repairs & Maintenance" | "Landscaping" | "Moving & Logistics" | "Event Planning" | "Catering"
+  | "Other";
 
 export interface AIResult {
   summary: string
@@ -12,95 +23,33 @@ export interface AIResult {
   raw_response: unknown
 }
 
-const SYSTEM_PROMPT = `You are a business intake classifier. Given the following client request, return a JSON object with exactly three fields:
+const SYSTEM_PROMPT = `You are a business intake classifier. Your goal is to accurately categorize client requests into the most specific category possible.
+ 
+Return a JSON object with exactly three fields:
 - "summary": a single sentence summarizing the request professionally (max 150 chars)
-"category": one of exactly [
-  // Tech
-  "Automation",
-  "Website",
-  "AI Integration",
-  "SEO",
-  "Custom Software",
-  "Mobile App",
-  "API Development",
-  "UI/UX Design",
-  "DevOps & CI/CD",
-  "Cloud Infrastructure",
-  "Cybersecurity",
-  "Blockchain & Web3",
-
-  // Design & Creative
-  "Logo & Branding",
-  "Graphic Design",
-  "Video Production",
-  "Photography",
-  "Motion Graphics",
-  "Illustration",
-  "Presentation Design",
-
-  // Marketing
-  "Social Media Marketing",
-  "Paid Ads / PPC",
-  "Email Marketing",
-  "Influencer Marketing",
-  "Content Marketing",
-  "Affiliate Marketing",
-
-  // Writing & Content
-  "Copywriting",
-  "Blog Writing",
-  "Translation",
-  "Proofreading & Editing",
-  "Technical Writing",
-  "Scriptwriting",
-
-  // Business & Finance
-  "Business Consulting",
-  "Financial Planning",
-  "Accounting & Bookkeeping",
-  "Tax Advisory",
-  "Market Research",
-  "Business Plan Writing",
-  "Fundraising & Pitch Decks",
-
-  // Legal
-  "Contract Drafting",
-  "Legal Consulting",
-  "Trademark & IP",
-  "Compliance Advisory",
-
-  // Education & Training
-  "Online Tutoring",
-  "Corporate Training",
-  "Course Creation",
-  "Language Teaching",
-  "Career Coaching",
-
-  // Health & Wellness
-  "Nutrition & Dietetics",
-  "Mental Health Coaching",
-  "Personal Training",
-  "Medical Consulting",
-
-  // Real Estate
-  "Property Management",
-  "Real Estate Consulting",
-  "Interior Design",
-  "Architecture",
-
-  // Home & Local Services
-  "Cleaning",
-  "Repairs & Maintenance",
-  "Landscaping",
-  "Moving & Logistics",
-  "Event Planning",
-  "Catering",
-
-  // Other
+- "category": one of exactly the categories listed below.
+- "confidence": a number between 0 and 1 indicating your confidence.
+ 
+**CRITICAL INSTRUCTIONS**:
+1. DO NOT default to "Other" if a more specific category fits even partially.
+2. Analyze the context carefully. For example, "I need a site for my bakery" should be "Website", while "I need to rank higher on Google" should be "SEO".
+3. If multiple categories apply, choose the one that represents the primary intent.
+ 
+**VALID CATEGORIES**:
+[
+  "Automation", "Website", "AI Integration", "SEO", "Custom Software", "Mobile App", "API Development", "UI/UX Design", "DevOps & CI/CD", "Cloud Infrastructure", "Cybersecurity", "Blockchain & Web3",
+  "Logo & Branding", "Graphic Design", "Video Production", "Photography", "Motion Graphics", "Illustration", "Presentation Design",
+  "Social Media Marketing", "Paid Ads / PPC", "Email Marketing", "Influencer Marketing", "Content Marketing", "Affiliate Marketing",
+  "Copywriting", "Blog Writing", "Translation", "Proofreading & Editing", "Technical Writing", "Scriptwriting",
+  "Business Consulting", "Financial Planning", "Accounting & Bookkeeping", "Tax Advisory", "Market Research", "Business Plan Writing", "Fundraising & Pitch Decks",
+  "Contract Drafting", "Legal Consulting", "Trademark & IP", "Compliance Advisory",
+  "Online Tutoring", "Corporate Training", "Course Creation", "Language Teaching", "Career Coaching",
+  "Nutrition & Dietetics", "Mental Health Coaching", "Personal Training", "Medical Consulting",
+  "Property Management", "Real Estate Consulting", "Interior Design", "Architecture",
+  "Cleaning", "Repairs & Maintenance", "Landscaping", "Moving & Logistics", "Event Planning", "Catering",
   "Other"
 ]
-- "confidence": a number between 0 and 1 indicating your confidence in the categorization
-
+ 
 Return only valid JSON, nothing else.`
 
 function buildPrompt(helpRequest: string): string {
@@ -111,8 +60,20 @@ function parseAIResponse(text: string): { summary: string; category: AICategory;
   const cleaned = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim()
   const parsed = JSON.parse(cleaned)
 
-  const validCategories: AICategory[] = ['Automation', 'Website', 'AI Integration', 'SEO', 'Custom Software', 'Other']
-  const category = validCategories.includes(parsed.category) ? parsed.category : 'Other'
+  const validCategories: AICategory[] = [
+    "Automation", "Website", "AI Integration", "SEO", "Custom Software", "Mobile App", "API Development", "UI/UX Design", "DevOps & CI/CD", "Cloud Infrastructure", "Cybersecurity", "Blockchain & Web3",
+    "Logo & Branding", "Graphic Design", "Video Production", "Photography", "Motion Graphics", "Illustration", "Presentation Design",
+    "Social Media Marketing", "Paid Ads / PPC", "Email Marketing", "Influencer Marketing", "Content Marketing", "Affiliate Marketing",
+    "Copywriting", "Blog Writing", "Translation", "Proofreading & Editing", "Technical Writing", "Scriptwriting",
+    "Business Consulting", "Financial Planning", "Accounting & Bookkeeping", "Tax Advisory", "Market Research", "Business Plan Writing", "Fundraising & Pitch Decks",
+    "Contract Drafting", "Legal Consulting", "Trademark & IP", "Compliance Advisory",
+    "Online Tutoring", "Corporate Training", "Course Creation", "Language Teaching", "Career Coaching",
+    "Nutrition & Dietetics", "Mental Health Coaching", "Personal Training", "Medical Consulting",
+    "Property Management", "Real Estate Consulting", "Interior Design", "Architecture",
+    "Cleaning", "Repairs & Maintenance", "Landscaping", "Moving & Logistics", "Event Planning", "Catering",
+    "Other"
+  ]
+  const category = validCategories.includes(parsed.category as AICategory) ? (parsed.category as AICategory) : "Other"
   const confidence = typeof parsed.confidence === 'number'
     ? Math.min(1, Math.max(0, parsed.confidence))
     : 0.8

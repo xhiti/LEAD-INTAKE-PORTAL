@@ -3,15 +3,18 @@ import { createClient } from '@/lib/supabase/server'
 import { trackLoginSessionAction } from '@/lib/actions/auth'
 
 export async function GET(request: Request) {
-  const { searchParams, origin } = new URL(request.url)
-  const code = searchParams.get('code')
-  const next = searchParams.get('next') ?? '/en/dashboard'
+  const requestUrl = new URL(request.url)
+  const code = requestUrl.searchParams.get('code')
+  const next = requestUrl.searchParams.get('next') ?? '/en/dashboard'
+
+  const host = request.headers.get('x-forwarded-host') || request.headers.get('host')
+  const protocol = request.headers.get('x-forwarded-proto') || 'https'
+  const origin = `${protocol}://${host}`
 
   if (code) {
     const supabase = await createClient()
     const { error, data: { session } } = await supabase.auth.exchangeCodeForSession(code)
     if (!error) {
-      // Sync profile fields from OAuth metadata (works for Google and any OIDC provider)
       if (session?.user?.id) {
         const meta = session.user.user_metadata
         const googleAvatar = meta?.avatar_url || meta?.picture

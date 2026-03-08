@@ -11,7 +11,7 @@ import { motion, AnimatePresence, Variants } from 'framer-motion'
 import { useTheme } from 'next-themes'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
+import { FormLabel } from '@/components/ui/form-label'
 import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import {
@@ -102,6 +102,7 @@ export function PublicIntakeForm({ industries }: Props) {
     setMounted(true)
   }, [])
 
+  /* 
   useEffect(() => {
     if (!helpRequestText || helpRequestText.length < 20) {
       setAiInsight(null)
@@ -129,6 +130,7 @@ export function PublicIntakeForm({ industries }: Props) {
 
     return () => clearTimeout(timer)
   }, [helpRequestText])
+  */
 
   async function onSubmit(data: FormData) {
     try {
@@ -321,12 +323,12 @@ export function PublicIntakeForm({ industries }: Props) {
                     <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
                       <motion.div variants={stagger} initial="hidden" animate="show" className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <motion.div variants={fadeUp} className="space-y-2">
-                          <Label htmlFor="name" className="text-sm font-medium">{t('form.name')}</Label>
+                          <FormLabel htmlFor="name" required className="text-sm font-medium">{t('form.name')}</FormLabel>
                           <Input id="name" placeholder={t('form.namePlaceholder')} className="h-10 rounded-xl" {...register('name')} />
                           {errors.name && <p className="text-xs text-destructive">{errors.name.message}</p>}
                         </motion.div>
                         <motion.div variants={fadeUp} className="space-y-2">
-                          <Label htmlFor="email" className="text-sm font-medium">{t('form.email')}</Label>
+                          <FormLabel htmlFor="email" required className="text-sm font-medium">{t('form.email')}</FormLabel>
                           <Input id="email" type="email" placeholder={t('form.emailPlaceholder')} className="h-10 rounded-xl" {...register('email')} />
                           {errors.email && <p className="text-xs text-destructive">{errors.email.message}</p>}
                         </motion.div>
@@ -334,12 +336,12 @@ export function PublicIntakeForm({ industries }: Props) {
 
                       <motion.div variants={stagger} initial="hidden" animate="show" className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <motion.div variants={fadeUp} className="space-y-2">
-                          <Label htmlFor="business_name" className="text-sm font-medium">{t('form.businessName')}</Label>
+                          <FormLabel htmlFor="business_name" required className="text-sm font-medium">{t('form.businessName')}</FormLabel>
                           <Input id="business_name" placeholder={t('form.businessNamePlaceholder')} className="h-10 rounded-xl" {...register('business_name')} />
                           {errors.business_name && <p className="text-xs text-destructive">{errors.business_name.message}</p>}
                         </motion.div>
                         <motion.div variants={fadeUp} className="space-y-2">
-                          <Label className="text-sm font-medium">{t('form.industry')}</Label>
+                          <FormLabel required className="text-sm font-medium">{t('form.industry')}</FormLabel>
                           <Select onValueChange={v => setValue('industry', v)} value={industry}>
                             <SelectTrigger className="h-10 rounded-xl">
                               <SelectValue placeholder={t('form.industryPlaceholder')} />
@@ -355,7 +357,7 @@ export function PublicIntakeForm({ industries }: Props) {
                       </motion.div>
 
                       <motion.div variants={fadeUp} className="space-y-2">
-                        <Label htmlFor="help_request" className="text-sm font-medium">{t('form.helpRequest')}</Label>
+                        <FormLabel htmlFor="help_request" required className="text-sm font-medium">{t('form.helpRequest')}</FormLabel>
                         <Textarea
                           id="help_request"
                           placeholder={t('form.helpRequestPlaceholder')}
@@ -365,40 +367,6 @@ export function PublicIntakeForm({ industries }: Props) {
                         {errors.help_request && <p className="text-xs text-destructive">{errors.help_request.message}</p>}
                       </motion.div>
 
-                      <AnimatePresence>
-                        {(isAnalyzing || aiInsight) && !errors.help_request && helpRequestText?.length >= 20 && (
-                          <motion.div
-                            initial={{ opacity: 0, height: 0, y: -10 }}
-                            animate={{ opacity: 1, height: 'auto', y: 0 }}
-                            exit={{ opacity: 0, height: 0 }}
-                            className="overflow-hidden"
-                          >
-                            <div className="bg-gradient-to-r from-teal-50 to-emerald-50 dark:from-teal-950/30 dark:to-emerald-950/30 border border-teal-100 dark:border-teal-900/50 rounded-xl p-4 relative">
-                              <div className="flex items-center gap-2 mb-2">
-                                <Sparkles className="h-4 w-4 text-teal-600 dark:text-teal-400" />
-                                <h4 className="text-sm font-semibold text-teal-800 dark:text-teal-300">AI Live Insights</h4>
-                                {isAnalyzing && <Loader2 className="h-3.5 w-3.5 animate-spin text-teal-600/50 dark:text-teal-400/50 ml-auto" />}
-                              </div>
-                              {isAnalyzing && !aiInsight ? (
-                                <div className="space-y-2 py-1">
-                                  <div className="h-4 w-1/3 bg-teal-100 dark:bg-teal-900/40 rounded animate-pulse" />
-                                  <div className="h-3 w-3/4 bg-teal-100/70 dark:bg-teal-900/30 rounded animate-pulse" />
-                                </div>
-                              ) : aiInsight ? (
-                                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-2.5">
-                                  <div className="flex items-center gap-2">
-                                    <span className="text-[10px] uppercase font-bold tracking-wider text-teal-600/70 dark:text-teal-400/70">Predicted Category</span>
-                                    <Badge variant="secondary" className="bg-teal-100 dark:bg-teal-900/50 text-teal-800 dark:text-teal-300 border-none font-medium">
-                                      {aiInsight.category}
-                                    </Badge>
-                                  </div>
-                                  <p className="text-sm text-teal-900/80 dark:text-teal-100/80 leading-relaxed italic">"{aiInsight.summary}"</p>
-                                </motion.div>
-                              ) : null}
-                            </div>
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
 
                       <motion.div variants={fadeUp} whileTap={{ scale: 0.99 }} className="pt-2">
                         <Button
