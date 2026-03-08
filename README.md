@@ -202,7 +202,29 @@ cd lead-intake-portal
 npm install
 ```
 
-### 2. Environment Variables
+### 1. Vercel Credentials (Mandatory for CI/CD)
+
+To enable automated deployments, you must add the following secrets to **GitHub Settings > Secrets and variables > Actions**:
+
+| Secret | Where to find it? |
+|--------|------------------|
+| `VERCEL_TOKEN` | [vercel.com/account/tokens](https://vercel.com/account/tokens) (Create a new token) |
+| `VERCEL_ORG_ID` | Check your Team Settings on Vercel or run `vercel link` locally. |
+| `VERCEL_PROJECT_ID` | Found in Project Settings > General on Vercel dashboard. |
+
+#### 🛠️ How to Add Them to GitHub:
+1. Go to your **GitHub Repository** page.
+2. Click on the **Settings** tab (the gear icon at the top).
+3. On the left sidebar, find and click **Secrets and variables** -> **Actions**.
+4. Click the green **New repository secret** button.
+5. In the **Name** box, type one of the names above (e.g., `VERCEL_TOKEN`).
+6. In the **Secret** box, paste your value.
+7. Click **Add secret** and repeat for all three.
+
+> [!TIP]
+> You can also find `VERCEL_ORG_ID` and `VERCEL_PROJECT_ID` in the `.vercel/project.json` file created after running `vercel link` on your machine.
+
+### 2. General Environment Variables
 
 Copy the example file and fill in your credentials:
 

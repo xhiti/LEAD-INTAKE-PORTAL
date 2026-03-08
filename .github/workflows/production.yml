@@ -82,6 +82,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     needs: preflight
+    outputs:
+      production-url: ${{ steps.deploy.outputs.production-url }}
     environment:
       name: Production
       url: ${{ steps.deploy.outputs.production-url }}
@@ -140,7 +142,7 @@ jobs:
 
       - name: 🏥 Health check
         run: |
-          PRODUCTION_URL="${{ needs.deploy-production.outputs.production-url || secrets.PRODUCTION_URL }}"
+          PRODUCTION_URL="${{ needs.deploy-production.outputs.production-url }}"
           if [ -z "$PRODUCTION_URL" ]; then
             echo "⚠️ No production URL available, skipping health check"
             exit 0
