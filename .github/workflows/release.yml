@@ -1,0 +1,256 @@
+# ============================================================================
+# Automatic Releases — Lead Intake Portal
+# ============================================================================
+# Fires after every successful production deploy to main.
+# Generates a professional GitHub Release with:
+#   - Smart title using package.json version + date
+#   - Detailed body: changed areas, commit list, build metadata
+# ============================================================================
+
+name: Release — Auto-create on Deploy
+
+on:
+  workflow_run:
+    workflows: ["Production — Deploy to Vercel"]
+    types: [completed]
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: 🏷️ Create GitHub Release
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+
+    steps:
+      # ── Checkout the exact commit that was deployed ──────────────────────
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+          fetch-depth: 0
+
+      # ── Create a version tag ──────────────────────────────────────────────
+      - name: 🔖 Create version tag
+        id: tag
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+          RUN_NUMBER: ${{ github.event.workflow_run.run_number }}
+        run: |
+          DATE=$(date -u '+%Y.%m.%d')
+          TAG="v${DATE}-${RUN_NUMBER}"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag "$TAG" "$HEAD_SHA"
+          git push origin "$TAG"
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+
+      # ── Generate release title + body via JS ─────────────────────────────
+      - name: 📝 Generate release content
+        id: content
+        uses: actions/github-script@v7
+        env:
+          HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+          ACTOR: ${{ github.event.workflow_run.actor.login }}
+          RUN_NUMBER: ${{ github.event.workflow_run.run_number }}
+          RUN_URL: ${{ github.event.workflow_run.html_url }}
+          TAG: ${{ steps.tag.outputs.tag }}
+        with:
+          script: |
+            const { execSync } = require('child_process');
+            const fs = require('fs');
+
+            // ── Helpers ─────────────────────────────────────────────────────
+            const run = (cmd) => {
+              try { return execSync(cmd, { encoding: 'utf8' }).trim(); }
+              catch { return ''; }
+            };
+
+            // ── Find previous tag ────────────────────────────────────────────
+            const allTags = run('git tag --sort=-version:refname').split('\n').filter(Boolean);
+            const currentTag = process.env.TAG;
+            const prevTag = allTags.find(t => t !== currentTag) || '';
+            const range = prevTag ? `${prevTag}..HEAD` : '';
+
+            // ── Changed files ────────────────────────────────────────────────
+            const changedRaw = range
+              ? run(`git diff --name-only ${range}`)
+              : run('git diff --name-only HEAD~20..HEAD');
+            const changed = changedRaw.split('\n').filter(Boolean);
+
+            // ── Commits ─────────────────────────────────────────────────────
+            const commitLog = range
+              ? run(`git log ${range} --pretty=format:"%H|||%s|||%an" --no-merges`)
+              : run('git log HEAD~20..HEAD --pretty=format:"%H|||%s|||%an" --no-merges');
+            const commits = commitLog
+              .split('\n')
+              .filter(l => l && !l.includes('Merge branch'))
+              .map(l => {
+                const [hash, subject, author] = l.split('|||');
+                return { hash: (hash || '').slice(0, 7), subject: subject || '', author: author || '' };
+              });
+
+            // ── Version ──────────────────────────────────────────────────────
+            const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+            const version = pkg.version;
+
+            // ── Date ─────────────────────────────────────────────────────────
+            const now = new Date();
+            const longDate = now.toLocaleDateString('en-US', {
+              month: 'long', day: 'numeric', year: 'numeric', timeZone: 'UTC'
+            });
+            const shortDate = now.toLocaleDateString('en-US', {
+              month: 'short', year: 'numeric', timeZone: 'UTC'
+            });
+
+            // ── Categorize file changes ───────────────────────────────────────
+            const cats = {
+              pages:      changed.filter(f => /^app\/\[locale\]\//.test(f)),
+              api:        changed.filter(f => /^app\/api\//.test(f)),
+              components: changed.filter(f => /^components\//.test(f)),
+              lib:        changed.filter(f => /^lib\//.test(f)),
+              i18n:       changed.filter(f => /^messages\//.test(f)),
+              supabase:   changed.filter(f => /^supabase\//.test(f)),
+              ci:         changed.filter(f => /^\.github\//.test(f)),
+              config:     changed.filter(f => /^(next\.config|tailwind|tsconfig|package\.json|\.env)/.test(f)),
+              public:     changed.filter(f => /^public\//.test(f)),
+            };
+
+            const total = changed.length;
+            const uiCount = cats.pages.length + cats.components.length;
+            const backendCount = cats.api.length + cats.lib.length;
+
+            // ── Infer what this release is about for the title ────────────────
+            const highlights = [];
+            if (uiCount > 0)          highlights.push('UI updates');
+            if (backendCount > 0)     highlights.push('backend changes');
+            if (cats.i18n.length > 0) highlights.push('i18n');
+            if (cats.supabase.length > 0) highlights.push('DB migrations');
+            if (cats.ci.length > 0)   highlights.push('CI/CD');
+
+            const subtitle = highlights.length > 0
+              ? highlights.join(', ')
+              : `${commits.length} commit${commits.length === 1 ? '' : 's'}`;
+
+            // ── Title ────────────────────────────────────────────────────────
+            const title = `Lead Intake Portal v${version} · ${shortDate} — ${subtitle}`;
+
+            // ── Body builder ─────────────────────────────────────────────────
+            const lines = [];
+
+            lines.push(`## 🚀 Lead Intake Portal \`v${version}\``);
+            lines.push(`> **${longDate}** · ${commits.length} commit${commits.length === 1 ? '' : 's'} · ${total} file${total === 1 ? '' : 's'} changed`);
+            lines.push('');
+            lines.push('---');
+            lines.push('');
+
+            // ── Summary bar ──────────────────────────────────────────────────
+            lines.push('### 📊 Release Summary');
+            lines.push('');
+            lines.push('| Area | Files Changed |');
+            lines.push('|------|:---:|');
+            if (uiCount > 0)              lines.push(`| 🎨 Pages & Components | ${uiCount} |`);
+            if (backendCount > 0)         lines.push(`| ⚙️ API & Backend | ${backendCount} |`);
+            if (cats.i18n.length > 0)    lines.push(`| 🌍 Internationalization | ${cats.i18n.length} |`);
+            if (cats.supabase.length > 0) lines.push(`| 🗄️ Database | ${cats.supabase.length} |`);
+            if (cats.ci.length > 0)      lines.push(`| 🔧 CI / Workflows | ${cats.ci.length} |`);
+            if (cats.config.length > 0)  lines.push(`| 📦 Config & Deps | ${cats.config.length} |`);
+            if (cats.public.length > 0)  lines.push(`| 🖼️ Static Assets | ${cats.public.length} |`);
+            lines.push('');
+
+            // ── Per-category details ──────────────────────────────────────────
+            const renderFiles = (files, max = 12) => {
+              const shown = files.slice(0, max);
+              const extra = files.length - shown.length;
+              shown.forEach(f => lines.push(`  - \`${f}\``));
+              if (extra > 0) lines.push(`  - _…and ${extra} more_`);
+            };
+
+            if (uiCount > 0) {
+              lines.push('### 🎨 Pages & Components');
+              lines.push('');
+              renderFiles([...cats.pages, ...cats.components]);
+              lines.push('');
+            }
+
+            if (backendCount > 0) {
+              lines.push('### ⚙️ API & Backend Logic');
+              lines.push('');
+              renderFiles([...cats.api, ...cats.lib]);
+              lines.push('');
+            }
+
+            if (cats.i18n.length > 0) {
+              lines.push('### 🌍 Internationalization');
+              lines.push('');
+              const locales = [...new Set(cats.i18n.map(f => f.replace('messages/', '').replace('.json', '')))];
+              lines.push(`  Updated locales: ${locales.map(l => `\`${l}\``).join(', ')}`);
+              lines.push('');
+            }
+
+            if (cats.supabase.length > 0) {
+              lines.push('### 🗄️ Database & Migrations');
+              lines.push('');
+              renderFiles(cats.supabase);
+              lines.push('');
+            }
+
+            if (cats.ci.length > 0) {
+              lines.push('### 🔧 CI / Workflows');
+              lines.push('');
+              renderFiles(cats.ci);
+              lines.push('');
+            }
+
+            if (cats.config.length > 0) {
+              lines.push('### 📦 Config & Dependencies');
+              lines.push('');
+              renderFiles(cats.config);
+              lines.push('');
+            }
+
+            // ── Commit list ───────────────────────────────────────────────────
+            lines.push('---');
+            lines.push('');
+            lines.push('### 📝 Commits');
+            lines.push('');
+            if (commits.length === 0) {
+              lines.push('_No commits found since last release._');
+            } else {
+              commits.slice(0, 30).forEach(c => {
+                lines.push(`- [\`${c.hash}\`](../../commit/${c.hash}) ${c.subject}`);
+              });
+              if (commits.length > 30) lines.push(`- _…and ${commits.length - 30} more_`);
+            }
+            lines.push('');
+
+            // ── Build metadata ────────────────────────────────────────────────
+            lines.push('---');
+            lines.push('');
+            lines.push('### 🔧 Build Details');
+            lines.push('');
+            lines.push('| | |');
+            lines.push('|---|---|');
+            lines.push(`| **Version** | \`v${version}\` |`);
+            lines.push(`| **Commit** | [\`${process.env.HEAD_SHA.slice(0,7)}\`](../../commit/${process.env.HEAD_SHA}) |`);
+            lines.push(`| **Deployed by** | [@${process.env.ACTOR}](https://github.com/${process.env.ACTOR}) |`);
+            lines.push(`| **Workflow run** | [#${process.env.RUN_NUMBER}](${process.env.RUN_URL}) |`);
+            lines.push(`| **Tag** | \`${process.env.TAG}\` |`);
+            lines.push('');
+
+            const body = lines.join('\n');
+            core.setOutput('title', title);
+            core.setOutput('body', body);
+
+      # ── Publish the GitHub Release ────────────────────────────────────────
+      - name: 🚀 Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.tag.outputs.tag }}
+          name: ${{ steps.content.outputs.title }}
+          body: ${{ steps.content.outputs.body }}
+          make_latest: true
