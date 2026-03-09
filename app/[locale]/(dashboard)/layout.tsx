@@ -59,10 +59,22 @@ export default async function DashboardLayout({
     return null
   }
 
+  const isAdmin = profile.role === 'admin' || profile.role === 'moderator'
+  let newSubmissionsCount = 0
+  if (isAdmin) {
+    const { count } = await supabase
+      .from('submissions')
+      .select('*', { count: 'exact', head: true })
+      .eq('status', 'new')
+      .eq('is_active', true)
+      .eq('is_deleted', false)
+    newSubmissionsCount = count ?? 0
+  }
+
   return (
     <NotificationProvider userId={user.id}>
       <div className="flex h-screen overflow-hidden bg-gray-50 dark:bg-black">
-        <DashboardSidebar locale={locale} role={profile.role} />
+        <DashboardSidebar locale={locale} role={profile.role} newSubmissionsCount={newSubmissionsCount} />
         <div className="flex-1 flex flex-col overflow-hidden min-w-0">
           <DashboardTopbar profile={profile} locale={locale} />
           <main className="flex-1 overflow-y-auto text-foreground">

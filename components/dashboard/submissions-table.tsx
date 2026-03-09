@@ -39,6 +39,7 @@ interface Props {
   userId: string
   isMySubmissions?: boolean
   industries: string[]
+  hideStatusFilter?: boolean
 }
 
 const STATUSES = ['new', 'reviewed', 'in_progress', 'closed', 'archived'] as const
@@ -54,7 +55,8 @@ export function SubmissionsTable({
   locale,
   userId,
   isMySubmissions,
-  industries
+  industries,
+  hideStatusFilter,
 }: Props) {
   const t = useTranslations('submissions')
   const router = useRouter()
@@ -292,20 +294,22 @@ export function SubmissionsTable({
               </div>
             )}
 
-            <div className="space-y-2">
-              <Select value={statusFilter} onValueChange={v => {
-                setStatusFilter(v)
-                updateUrl({ status: v })
-              }}>
-                <SelectTrigger className="h-10 bg-background/50">
-                  <SelectValue placeholder={t('filterStatus')} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">{t('allStatuses')}</SelectItem>
-                  {STATUSES.map(s => <SelectItem key={s} value={s}>{t(`status.${s}`)}</SelectItem>)}
-                </SelectContent>
-              </Select>
-            </div>
+            {!hideStatusFilter && (
+              <div className="space-y-2">
+                <Select value={statusFilter} onValueChange={v => {
+                  setStatusFilter(v)
+                  updateUrl({ status: v })
+                }}>
+                  <SelectTrigger className="h-10 bg-background/50">
+                    <SelectValue placeholder={t('filterStatus')} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">{t('allStatuses')}</SelectItem>
+                    {STATUSES.map(s => <SelectItem key={s} value={s}>{t(`status.${s}`)}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
 
             <div className="space-y-2">
               <Select value={industryFilter} onValueChange={v => {

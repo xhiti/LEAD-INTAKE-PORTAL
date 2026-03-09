@@ -19,19 +19,23 @@ import {
   Settings,
   Bell,
   ShieldCheck,
+  Inbox,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { motion } from 'framer-motion'
+import { useNotifications } from '@/components/notifications/notification-provider'
 
 interface Props {
   locale: string
   role: string
+  newSubmissionsCount?: number
 }
 
-export function DashboardSidebar({ locale, role }: Props) {
+export function DashboardSidebar({ locale, role, newSubmissionsCount = 0 }: Props) {
   const t = useTranslations('nav')
   const pathname = usePathname()
   const isAdmin = role === 'admin' || role === 'moderator'
+  const { unreadCount } = useNotifications()
 
   const navigationGroups = [
     {
@@ -70,6 +74,13 @@ export function DashboardSidebar({ locale, role }: Props) {
         },
         ...(isAdmin
           ? [
+            {
+              href: `/${locale}/submissions/inbox`,
+              label: t('newSubmissions'),
+              icon: Inbox,
+              roles: ['admin', 'moderator'],
+              badge: newSubmissionsCount,
+            },
             {
               href: `/${locale}/submissions`,
               label: t('allSubmissions'),
@@ -113,6 +124,7 @@ export function DashboardSidebar({ locale, role }: Props) {
           label: t('notifications'),
           icon: Bell,
           roles: ['user', 'admin', 'moderator', 'viewer'],
+          badge: unreadCount,
         },
         {
           href: `/${locale}/profile/sessions`,
@@ -187,7 +199,7 @@ export function DashboardSidebar({ locale, role }: Props) {
                 {group.title}
               </p>
               <div className="space-y-0.5">
-                {visibleItems.map(({ href, label, icon: Icon }) => {
+                {visibleItems.map(({ href, label, icon: Icon, badge }) => {
                   const isActive =
                     pathname === href ||
                     (href !== `/${locale}/dashboard` &&
@@ -213,7 +225,17 @@ export function DashboardSidebar({ locale, role }: Props) {
                         )}
                       />
                       <span className="flex-1 truncate">{label}</span>
-                      {isActive && <ChevronRight className="h-3 w-3 opacity-60 shrink-0" />}
+                      {badge != null && badge > 0 && (
+                        <span className={cn(
+                          'ml-auto min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-bold leading-none flex items-center justify-center shrink-0',
+                          isActive
+                            ? 'bg-white/25 text-white'
+                            : 'bg-primary text-primary-foreground'
+                        )}>
+                          {badge > 99 ? '99+' : badge}
+                        </span>
+                      )}
+                      {(!badge || badge === 0) && isActive && <ChevronRight className="h-3 w-3 opacity-60 shrink-0" />}
                     </Link>
                   )
                 })}
