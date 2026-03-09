@@ -195,6 +195,27 @@ A context-aware chatbot (powered by Groq) that:
 
 ---
 
+## 🔑 Access & Credentials
+
+The portal supports different ways to interact with the system depending on whether you are a public visitor or a registered user.
+
+### 📝 Form Submissions
+- **Outside Portal (Public)**: Anyone can submit a lead through the public intake form without needing an account.
+- **Inside Portal (Authenticated)**: Registered users can submit leads directly from their dashboard.
+
+### 👤 Account Creation
+Creating an account can be done in two ways:
+1. **Google Sign-in**: One-click authentication using your Google account.
+2. **Email & Password**: Standard registration with email verification.
+
+### 🛡️ Admin Access
+For testing and administrative purposes, you can use the following default credentials to access the admin dashboard:
+
+- **Email**: `admin@intake.com`
+- **Password**: `Admin1234$`
+
+---
+
 ## 🚀 Getting Started
 
 ### Prerequisites
